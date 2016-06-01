@@ -20,29 +20,25 @@ export class PostsService {
 
     public getPost(id: number): Post {
         if (id > 0) {
-            var successCallback =  (res:Response) => {
-                let body = res.json();
-                let response = body.data || {};
-                if (response.length > 0 && response.httpStatusCode === 200) {
-                    return response.data;
-                }
-            };
             this._default.httpDefaults.url = "/api/v1/Posts/Get/" + id;
-            this._default.httpDefaults.callback = successCallback;
             
-            let promise = this._default.ajaxPost<Post>();
+            let promise = this._default.post<Post>();
+            promise.then(
+                post => this.post = post
+            );
+
             return this.post;
         }
     }
 
     public getAllPosts(): Post[] {
-        
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
 
-        let promise = this._default.ajaxPost<Post[]>();
+        let promise = this._default.post<Post[]>();
         promise.then(
             posts => this.postList = posts
         );
+
         return this.postList;
     }
 }
