@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Web.Http;
 using SimpleCMS.Models;
@@ -15,15 +16,19 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof (ApiResponse<object>))]
         public IHttpActionResult Create(PostRequestModel postModel)
         {
-            ValidateRequest(postModel); 
+            ValidateRequest(postModel);
 
-            if (ApiRequest.IsValid)
-            {
-                _db.Posts.Add(postModel.Post);
-                _db.SaveChanges();
-                ApiResponse.HttpStatusCode = HttpStatusCode.Created;
-                ApiResponse.Data = null;
-            }
+            // return early if bad request 
+            if (!ApiRequest.IsValid)
+                return Content(ApiResponse.HttpStatusCode, ApiResponse);
+
+            // valid ApiRequest. create post
+            postModel.Post.Created = DateTime.Now;
+            postModel.Post.Updated = postModel.Post.Created;
+            _db.Posts.Add(postModel.Post);
+            _db.SaveChanges();
+            ApiResponse.HttpStatusCode = HttpStatusCode.Created;
+            ApiResponse.Data = null;
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse);
         }
@@ -35,13 +40,28 @@ namespace SimpleCMS.Controllers
         {
             ValidateRequest(postModel);
 
-            if (ApiRequest.IsValid)
+            // return early if bad request 
+            if (!ApiRequest.IsValid)
+                return Content(ApiResponse.HttpStatusCode, ApiResponse);
+
+            // valid ApiRequest. update post
+            var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
+            postToUpdate.ID = postModel.Post.ID;
+            postToUpdate.Title = postModel.Post.Title;
+            postToUpdate.Content = postModel.Post.Content;
+            postToUpdate.Updated = DateTime.Now;
+            postToUpdate.Attachment = postModel.Post.Attachment;
+            if (postToUpdate.Attachment && !string.IsNullOrEmpty(postModel.Post.AttachmentPath))
             {
-                var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
-                postToUpdate = postModel.Post;
-                _db.SaveChanges();
-                ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+                postToUpdate.AttachmentPath = postModel.Post.AttachmentPath;
             }
+            if (!string.IsNullOrEmpty(postModel.Post.Category))
+            {
+                postToUpdate.Category = postModel.Post.Category;
+            }
+            _db.SaveChanges();
+            ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+            ApiResponse.Data = null;
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse);
         }
@@ -51,28 +71,30 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof (ApiResponse<Posts>))]
         public IHttpActionResult Get([FromUri]int id, [FromBody]string apiKey)
         {
-            if (!ValidateApiKey(apiKey, ApiRequest.Request.Url.Authority.ToString()))
+            if (!ValidateApiKey(apiKey, ApiRequest.Request.Url.Authority))
             {
                 ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
-                ApiRequest.IsValid = false;
             }
+            
+            // return early if invalid api key
+            if (!ApiRequest.IsValid)
+                return Content(ApiResponse.HttpStatusCode, ApiResponse);
 
-            if (ApiRequest.IsValid && id < 1)
+            // return early if invalid post id 
+            if (ApiRequest.IsValid && id < 0)
             {
                 ApiResponse.AddError("Invalid id", HttpStatusCode.BadRequest);
-                ApiRequest.IsValid = false;
+                return Content(ApiResponse.HttpStatusCode, ApiResponse);
             }
 
-            if (ApiRequest.IsValid)
-            {
-                ApiResponse.Data = _db.Posts.FirstOrDefault(p => p.ID == id);
-            }
-
+            ApiResponse.Data = _db.Posts.FirstOrDefault(p => p.ID == id);
+            
             return Content(ApiResponse.HttpStatusCode, ApiResponse); 
         }
         
-        // POST /api/Posts/AllPosts
+        // POST /api/v1/Posts/AllPosts
         [HttpPost]
+        [AllowAnonymous]
         [ResponseType(typeof(ApiResponse<IEnumerable<Posts>>))]
         public IHttpActionResult AllPosts([FromBody]string apiKey)
         {
@@ -89,21 +111,21 @@ namespace SimpleCMS.Controllers
             return Content(ApiResponse.HttpStatusCode, ApiResponse);
         }
 
-        // POST api/Posts/PostsByUser
-
+        // POST /api/v1/Posts/ByUser
         [HttpPost]
         [ResponseType(typeof (ApiResponse<IEnumerable<Posts>>))]
         public IHttpActionResult ByUser(ByUserRequestModel userModel)
         {
-            ValidateRequest(userModel); 
+            ValidateRequest(userModel);
 
-            if (ApiResponse._IsValid)
-            {
-                ApiResponse.HttpStatusCode = HttpStatusCode.OK;
-                ApiResponse.Data = _db.Posts.Where(p =>
-                    p.ApplicationUser.UserName == userModel.Username)
-                    .ToList<Posts>() as IEnumerable<Posts>;
-            }
+            // return early if bad request
+            if (!ApiRequest.IsValid)
+                return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            
+            // valid ApiRequest
+            ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+            ApiResponse.Data = _db.Posts.Where(p =>
+                p.ApplicationUser.UserName == userModel.Username).ToList();
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse); 
         }

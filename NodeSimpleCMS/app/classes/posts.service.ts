@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { _default } from "./_default";
-import { Post } from "./post";
+import { _default }   from "./_default";
+import { Post }       from "./post";
+import { Http, Response }       from "@angular/http";
 
 @Injectable()
 export class PostsService {
@@ -11,37 +12,37 @@ export class PostsService {
 
     public postList: Post[];
 
-    constructor() {
-        this._default = new _default();
+    constructor(http: Http) {
+        this._default = new _default(http);
         this.post = new Post();
         this.postList = null;
     }
 
     public getPost(id: number): Post {
         if (id > 0) {
-            var successCallback = response => {
-                if (response.httpStatusCode === 200) {
+            var successCallback =  (res:Response) => {
+                let body = res.json();
+                let response = body.data || {};
+                if (response.length > 0 && response.httpStatusCode === 200) {
                     return response.data;
                 }
             };
-            this._default.ajaxDefaults.url = "/api/v1/Posts/Get/" + id.toString();
-            this._default.ajaxDefaults.success = successCallback;
-            this._default.ajaxDefaults.async = false; 
-            this.post = this._default.ajaxPost();
+            this._default.httpDefaults.url = "/api/v1/Posts/Get/" + id;
+            this._default.httpDefaults.callback = successCallback;
+            
+            let promise = this._default.ajaxPost<Post>();
             return this.post;
         }
     }
 
     public getAllPosts(): Post[] {
-        var successCallback = response => {
-            if (response.httpStatusCode === 200) {
-                return response.data;
-            }
-        }
-        this._default.ajaxDefaults.url = "/api/v1/Posts/AllPosts";
-        this._default.ajaxDefaults.success = successCallback; 
-        this._default.ajaxDefaults.async = false; 
-        this.post = this._default.ajaxPost();
+        
+        this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
+
+        let promise = this._default.ajaxPost<Post[]>();
+        promise.then(
+            posts => this.postList = posts
+        );
         return this.postList;
     }
 }

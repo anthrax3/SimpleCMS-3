@@ -1,23 +1,32 @@
-import { ErrorMessages } from './error.messages';
-import { AjaxDefaults } from './ajax.defaults';
+import { ErrorMessages }  from "./error.messages";
+import { HttpDefaults }   from "./http.defaults";
+import { Http,
+         Response,
+         Headers,
+         RequestOptions } from "@angular/http";
+import { Injectable }     from "@angular/core";
+import { Observable }     from "rxjs/Observable";
 
-var $; // "mock" jquery for compiler 
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/toPromise';
 
+
+@Injectable()
 export class _default {
 
-    public ajaxDefaults: AjaxDefaults;
+    public httpDefaults: HttpDefaults;
 
     private _apiKey: string;
 
-    constructor() {
-        this._apiKey = "devtestkey";
-        this.ajaxDefaults = new AjaxDefaults();
-    }
+    private _http: Http; 
 
-    // doamin for ajax requests 
-    // @return string
-    public AJAX_URL(): string {
-        return "http://localhost";
+    private _apiUrl: string;
+
+    constructor(http: Http) {
+        this._apiKey = "devtestkey";
+        this._apiUrl = "http://localhost:59980";
+        this.httpDefaults = new HttpDefaults();
+        this._http = http;
     }
 
     // @param email = email to validate
@@ -30,60 +39,23 @@ export class _default {
     // @param password = string to validate id = id of input field
     // @return bool (adds error message if false)
     public validatePasswordLength(password: string, id: number): boolean {
-        if (password.trim() === "" || password.trim().length < 5) {
-            $(id).addError(ErrorMessages.passwordLength);
+        if (password === "" || password.length < 5) {
+            //$(id).addError(ErrorMessages.passwordLength);
             return false;
         }
         return true;
     }
-
-    // clears all error messages on a page. If a form id is
-    // passed the form fields will also be cleared
-    // @param formid = id of form (optional)
-    // @return void
-    public clearErrors(formID: string): void {
-        $(".input-error").removeClass("input-error");
-        $(".error-message").remove();
-        if (formID != undefined) {
-            var form = document.getElementById(formID);
-            //form.reset();
-        }
-    }
-
-    // clears input errors and values when a bootstrap modal 
-    // that has a form closes. 
-    // @param modal = id of modal
-    // @return void
-    public clearModalErrors(modal: string): void {
-        $(modal).on("hidden.bs.modal", function () {
-            var id = $(this).find("form").attr("id");
-            this.clearErrors(id);
-        });
-    }
-
-    // Clears input errors on change
-    // @param field = id of input
-    // @return void
-    public updateInputField(field: string): void {
-        $(field).change(function () {
-            if (this.value != "") {
-                $(this).removeClass("input-error");
-                $("." + field.substring(1) + ".error-message").remove();
-            }
-        });
-    }
-
+   
     // submits an ajax get request to this.AJAX_URL + settings.url 
     // then calls settings.sucsess callback function 
     // @params settings = object for ajax, async = bool
     // @return any (if success function returns data any will be that object)
-    public ajaxGet(includeKey: boolean = true): any {
-        this.ajaxDefaults.type = "GET";
-        if (this.ajaxDefaults.url != null && this.ajaxDefaults.url.length > 0) {
-            this.ajaxDefaults.url = this.AJAX_URL() + this.ajaxDefaults.url;
+    public ajaxGet<T>(includeKey: boolean = true): Promise<T> {
+        if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
+            this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
         if (includeKey) {
-            let dataObject = JSON.parse(this.ajaxDefaults.data);
+            let dataObject = JSON.parse(this.httpDefaults.data);
             if (dataObject == null) {
                 dataObject = {
                     "apiKey": this._apiKey
@@ -91,23 +63,29 @@ export class _default {
             } else {
                 dataObject["apiKey"] = this._apiKey;
             }
-            this.ajaxDefaults.data = JSON.stringify(dataObject); 
+            this.httpDefaults.data = JSON.stringify(dataObject); 
         }
-        $.ajax(this.ajaxDefaults);
+
+        let headers = new Headers();
+        let options = new RequestOptions({ headers: headers });
+        headers.append("Content-Type", "application/json");
+        return this._http.get(this.httpDefaults.url, options)
+                            .toPromise()
+                            .then(this.extractData)
+                            .catch(this.handleError);
     }
 
     // submits an ajax post request to this.AJAX_URL + settings.url 
     // then calls settings.sucsess callback function 
     // @params settings = object for ajax, async = bool
     // @return any (if success function returns data any will be that object)
-    public ajaxPost(includeKey: boolean = true): any {
-        this.ajaxDefaults.type = "POST";
-        if (this.ajaxDefaults.url != null && this.ajaxDefaults.url.length > 0) {
-            this.ajaxDefaults.url = this.AJAX_URL() + this.ajaxDefaults.url;
+    public ajaxPost<T>(includeKey: boolean = true): Promise<T> {
+        if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
+            this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
 
         if (includeKey) {
-            let dataObject = JSON.parse(this.ajaxDefaults.data);
+            let dataObject = JSON.parse(this.httpDefaults.data);
             if (dataObject == null) {
                 dataObject = {
                     "apiKey": this._apiKey
@@ -115,20 +93,48 @@ export class _default {
             } else {
                 dataObject["apiKey"] = this._apiKey;
             }
-            this.ajaxDefaults.data = JSON.stringify(dataObject);
+            this.httpDefaults.data = JSON.stringify(dataObject);
         }
 
-        return $.ajax(this.ajaxDefaults);
+        let headers = new Headers();
+        let options = new RequestOptions({ headers : headers}); 
+        headers.append("Content-Type", "application/json");
+        return this._http.post(this.httpDefaults.url, this.httpDefaults.data, options)
+                            .toPromise()
+                            .then(this.extractData)
+                            .catch(this.handleError);
     }
 
-    // adds a dismissable alert to an element
-    // @params type = name of what is being updated, action = update or delete, msgId = id of element to update
-    public alertMsg(type: string, action: string, msgID: string): void {
-        if (type == undefined) return;
-        const deleteMsg = `<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> ${type} has been deleted.</div>`;
-        const updateMsg = `<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Success!</strong> ${type} has been updated.</div>`;
-        if (action === "delete") $(msgID).html(deleteMsg);
-        if (action === "update") $(msgID).html(updateMsg);
+
+    private extractData(res: Response) {
+        let body = res.json();
+        let response = body.data || {};
+
+        // extract response data depending on http status code 
+        // errors / messages logged to console
+        if (response.length > 0 && response.httpStatusCode === 200) {
+            if (response.data != null) {
+                response = response.data;
+            } else {
+                console.log(response.message);
+                response = {}
+            }
+        }
+        if (response.length > 0 && response.httpStatusCode > 200) {
+            console.log(response.errors);
+            response = {};
+        }
+
+        return response;
+    }
+
+    private handleError(error: any) {
+        // In a real world app, we might use a remote logging infrastructure
+        // We'd also dig deeper into the error to get a better message
+        let errMsg = (error.message) ? error.message :
+            error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+        console.error(errMsg); // log to console instead
+        return Promise.reject(errMsg);
     }
 }
 

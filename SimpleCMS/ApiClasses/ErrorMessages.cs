@@ -24,7 +24,8 @@ namespace SimpleCMS.AppClasses
         /// </summary>
         public static Func<int, string> PostNotFound = 
             (postID) => $"Post with id {postID} does not exist.";
-        
+
+        public static string NoComments = "This post does not have any comments.";
 
         /// <summary>
         ///  Could not deserialize object of type {0} to bind to model. Verify request object is formed correctly.

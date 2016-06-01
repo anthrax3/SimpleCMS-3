@@ -33,11 +33,13 @@ namespace SimpleCMS.AppClasses
 
         public BaseApiController()
         {
+            ApiRequest = new ApiRequest
+            {
+                Request = HttpContext.Current.Request
+            };
             ApiResponse = new ApiResponse<object>();
             _db = new ApplicationContext();
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
-            ApiRequest = new ApiRequest();
-            ApiRequest.Request = HttpContext.Current.Request; 
         }
 
         /// <summary>
@@ -46,6 +48,10 @@ namespace SimpleCMS.AppClasses
         /// <param name="db"></param>
         public BaseApiController(ApplicationContext db)
         {
+            ApiRequest = new ApiRequest
+            {
+                Request = HttpContext.Current.Request
+            };
             ApiResponse = new ApiResponse<object>();
             _db = db;
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
@@ -62,7 +68,7 @@ namespace SimpleCMS.AppClasses
             var i = 0;
             foreach (var error in modelState.Select(e => e.Value.Errors))
             {
-                if (error != null) continue;
+                if (error == null) continue;
                 var firstOrDefault = error.Select(e => e.ErrorMessage)
                     .FirstOrDefault();
                 if (firstOrDefault != null)
@@ -76,8 +82,8 @@ namespace SimpleCMS.AppClasses
         /// Assuming the object parameter has an ApiKey property the api
         /// key is validated along with the ModelState of the request. With the
         /// same assumption a username is also validated. All errors are added
-        /// to ApiResponse.Errors and ApiResponse._IsValid is set appropriately.
-        /// Note through adding an error ApiResponse.HttpStatusCode is also set. 
+        /// to ApiResponse.Errors and ApiResponse._IsValid and ApiRequest.IsValid
+        /// are set appropriately. 
         /// </summary>
         /// <param name="model"></param>
         public void ValidateRequest(object model)
@@ -103,8 +109,9 @@ namespace SimpleCMS.AppClasses
                             null;
 
             // only validate the username if the property is set 
-            if (username != null)
+            if (!string.IsNullOrEmpty(username))
             {
+                // make sure username exists 
                 if (!_db.Users.Any(u => u.UserName == username))
                 {
                     ApiResponse.AddError(ErrorMessages.UsernameNotFound(username), HttpStatusCode.OK);
@@ -136,6 +143,7 @@ namespace SimpleCMS.AppClasses
             {
                 boolRtn = true; 
             }
+            ApiRequest.IsValid = boolRtn;
             return boolRtn;
         }
     }

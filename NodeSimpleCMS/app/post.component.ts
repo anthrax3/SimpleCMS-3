@@ -5,7 +5,7 @@ import { RouteConfig,
 import { DashboardComponent } from './dashboard.component';
 import { Post }               from  './classes/post';
 import { PostsService }       from './classes/posts.service';
-
+import { Http }  from '@angular/http'
 @Component({
     selector: 'simple-cms',
     templateUrl: 'app/post.component.html',
@@ -20,8 +20,8 @@ export class PostComponent {
     public post: Post;
     private postService: PostsService;
 
-    constructor(public id: number) {
-        this.postService = new PostsService();
+    constructor(public id: number, http: Http) {
+        this.postService = new PostsService(http);
         // mock posts to test angular 
         //this.post = this.postService.getPost(id); 
         for (var i = 0; i < 5; i++) {

@@ -45,7 +45,7 @@
     <Content Include="typings\globals\jasmine\typings.json" />
     <Content Include="typings\globals\node\typings.json" />
     <TypeScriptCompile Include="app\app.component.ts" />
-    <TypeScriptCompile Include="app\classes\ajax.defaults.ts" />
+    <TypeScriptCompile Include="app\classes\http.defaults.ts" />
     <TypeScriptCompile Include="app\classes\error.messages.ts" />
     <TypeScriptCompile Include="app\classes\post.ts" />
     <TypeScriptCompile Include="app\classes\posts.service.ts" />
