@@ -46,15 +46,16 @@ export class _default {
         return true;
     }
    
-    // submits a http get request to this.AJAX_URL + settings.url 
+    // submits a http get request to API_URL + httpDefaults.url 
     // returns promise with data of response.data (if 200 OK) 
     // @params generic type T (type of response.data)
     // @return Promise<T>
-    public get<T>(includeKey: boolean = true): Promise<T> {
+    public get<T>(): Promise<T> {
         if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
             this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
-        if (includeKey) {
+
+        if (this.httpDefaults.includeKey) {
             let dataObject = JSON.parse(this.httpDefaults.data);
             if (dataObject == null) {
                 dataObject = {
@@ -68,23 +69,23 @@ export class _default {
 
         let headers = new Headers();
         let options = new RequestOptions({ headers: headers });
-        headers.append("Content-Type", "application/json");
+        headers.append("Content-Type", this.httpDefaults.contentType);
         return this._http.get(this.httpDefaults.url, options)
                             .toPromise()
                             .then(this.extractData)
                             .catch(this.handleError);
     }
 
-    // submits a http put request to this.AJAX_URL + settings.url 
+    // submits a http put request to API_URL + httpDefaults.url 
     // returns promise with data of response.data (if 200 OK) 
     // @params generic type T (type of response.data)
     // @return Promise<T>
-    public post<T>(includeKey: boolean = true): Promise<T> {
+    public post<T>(): Promise<T> {
         if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
             this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
 
-        if (includeKey) {
+        if (this.httpDefaults.includeKey) {
             let dataObject = JSON.parse(this.httpDefaults.data);
             if (dataObject == null) {
                 dataObject = {
@@ -98,7 +99,7 @@ export class _default {
 
         let headers = new Headers();
         let options = new RequestOptions({ headers : headers}); 
-        headers.append("Content-Type", "application/json");
+        headers.append("Content-Type", this.httpDefaults.contentType);
         return this._http.post(this.httpDefaults.url, this.httpDefaults.data, options)
                             .toPromise()
                             .then(this.extractData)

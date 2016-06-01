@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { _default }   from "./_default";
-import { Post }       from "./post";
-import { Http, Response }       from "@angular/http";
+import { Injectable }     from "@angular/core";
+import { Http, Response } from "@angular/http";
+import { _default }       from "../classes/_default";
+import { Post }           from "../classes/post";
 
 @Injectable()
 export class PostsService {
@@ -21,7 +21,8 @@ export class PostsService {
     public getPost(id: number): Post {
         if (id > 0) {
             this._default.httpDefaults.url = "/api/v1/Posts/Get/" + id;
-            
+            this._default.httpDefaults.includeKey = true;
+
             let promise = this._default.post<Post>();
             promise.then(
                 post => this.post = post
@@ -33,6 +34,7 @@ export class PostsService {
 
     public getAllPosts(): Post[] {
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
+        this._default.httpDefaults.includeKey = true; 
 
         let promise = this._default.post<Post[]>();
         promise.then(
