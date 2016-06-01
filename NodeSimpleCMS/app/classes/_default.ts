@@ -46,11 +46,11 @@ export class _default {
         return true;
     }
    
-    // submits an ajax get request to this.AJAX_URL + settings.url 
-    // then calls settings.sucsess callback function 
-    // @params settings = object for ajax, async = bool
-    // @return any (if success function returns data any will be that object)
-    public ajaxGet<T>(includeKey: boolean = true): Promise<T> {
+    // submits a http get request to this.AJAX_URL + settings.url 
+    // returns promise with data of response.data (if 200 OK) 
+    // @params generic type T (type of response.data)
+    // @return Promise<T>
+    public get<T>(includeKey: boolean = true): Promise<T> {
         if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
             this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
@@ -75,11 +75,11 @@ export class _default {
                             .catch(this.handleError);
     }
 
-    // submits an ajax post request to this.AJAX_URL + settings.url 
-    // then calls settings.sucsess callback function 
-    // @params settings = object for ajax, async = bool
-    // @return any (if success function returns data any will be that object)
-    public ajaxPost<T>(includeKey: boolean = true): Promise<T> {
+    // submits a http put request to this.AJAX_URL + settings.url 
+    // returns promise with data of response.data (if 200 OK) 
+    // @params generic type T (type of response.data)
+    // @return Promise<T>
+    public post<T>(includeKey: boolean = true): Promise<T> {
         if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
             this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
@@ -105,7 +105,9 @@ export class _default {
                             .catch(this.handleError);
     }
 
-
+    // callback method used for http requests 
+    // @param Response 
+    // @returns 
     private extractData(res: Response) {
         let body = res.json();
         let response = body.data || {};
@@ -137,19 +139,3 @@ export class _default {
         return Promise.reject(errMsg);
     }
 }
-
-// jquery functions
-// $(target).addError
-// @params errorMsg = message to add, field = name of field (used for targeting with LB$.updateInputField)
-/*$(function() {
-    $.fn.addError = function(errorMsg, field, altId) {
-        if (field == undefined) field = "";
-        var targetId = this;
-        if (altId != undefined) {
-            targetId = altId;
-        }
-        $(targetId).find('.error-message').remove();
-        $(targetId).after("<div class=\"" + field + " error-message text-danger\">" + errorMsg + "</div>");
-        $(this).addClass("input-error");
-    };
-});*/

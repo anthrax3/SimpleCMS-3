@@ -6,9 +6,11 @@ using SimpleCMS.Models;
 using SimpleCMS.AppClasses;
 using System.Web.Http.Description;
 using System.Collections.Generic;
+using System.Web.Http.Cors;
 
 namespace SimpleCMS.Controllers
 {
+    [AllowAnonymous]
     public class PostsController : BaseApiController
     {
         // POST api/v1/Posts/CreatePost
@@ -94,7 +96,6 @@ namespace SimpleCMS.Controllers
         
         // POST /api/v1/Posts/AllPosts
         [HttpPost]
-        [AllowAnonymous]
         [ResponseType(typeof(ApiResponse<IEnumerable<Posts>>))]
         public IHttpActionResult AllPosts([FromBody]string apiKey)
         {
