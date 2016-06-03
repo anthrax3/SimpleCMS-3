@@ -68,8 +68,8 @@ export class _default {
         }
 
         let headers = new Headers();
-        let options = new RequestOptions({ headers: headers });
         headers.append("Content-Type", this.httpDefaults.contentType);
+        let options = new RequestOptions({ headers: headers });
         return this._http.get(this.httpDefaults.url, options)
                             .toPromise()
                             .then(this.extractData)
@@ -98,8 +98,9 @@ export class _default {
         }
 
         let headers = new Headers();
-        let options = new RequestOptions({ headers : headers}); 
         headers.append("Content-Type", this.httpDefaults.contentType);
+        let options = new RequestOptions({ headers: headers }); 
+
         return this._http.post(this.httpDefaults.url, this.httpDefaults.data, options)
                             .toPromise()
                             .then(this.extractData)

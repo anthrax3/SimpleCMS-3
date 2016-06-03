@@ -8,10 +8,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var core_1 = require('@angular/core');
-var _default_1 = require("./_default");
-var post_1 = require("./post");
+var core_1 = require("@angular/core");
 var http_1 = require("@angular/http");
+var _default_1 = require("../classes/_default");
+var post_1 = require("../classes/post");
 var PostsService = (function () {
     function PostsService(http) {
         this._default = new _default_1._default(http);

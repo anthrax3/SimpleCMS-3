@@ -48,13 +48,13 @@
     <TypeScriptCompile Include="app\classes\http.defaults.ts" />
     <TypeScriptCompile Include="app\classes\error.messages.ts" />
     <TypeScriptCompile Include="app\classes\post.ts" />
-    <TypeScriptCompile Include="app\classes\posts.service.ts" />
+    <TypeScriptCompile Include="app\services\posts.service.ts" />
     <TypeScriptCompile Include="app\classes\_default.ts" />
     <TypeScriptCompile Include="app\dashboard.component.ts" />
     <TypeScriptCompile Include="app\main.ts" />
     <Content Include="app\app.component.js.map" />
     <Content Include="app\classes\post.js.map" />
-    <Content Include="app\classes\posts.service.js.map" />
+    <Content Include="app\services\posts.service.js.map" />
     <Content Include="app\classes\_default.js.map" />
     <Content Include="app\dashbaord.component.html" />
     <Content Include="app\dashboard.component.js.map" />
@@ -70,6 +70,7 @@
   <ItemGroup>
     <Folder Include="app\" />
     <Folder Include="app\classes\" />
+    <Folder Include="app\services\" />
     <Folder Include="typings\" />
     <Folder Include="typings\globals\" />
     <Folder Include="typings\globals\core-js\" />
@@ -79,7 +80,7 @@
   <ItemGroup>
     <Compile Include="app\app.component.js" />
     <Compile Include="app\classes\post.js" />
-    <Compile Include="app\classes\posts.service.js" />
+    <Compile Include="app\services\posts.service.js" />
     <Compile Include="app\classes\_default.js" />
     <Compile Include="app\dashboard.component.js" />
     <Compile Include="app\main.js" />

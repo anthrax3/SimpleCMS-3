@@ -4,7 +4,7 @@ import { RouteConfig,
     ROUTER_PROVIDERS }        from '@angular/router-deprecated';
 import { DashboardComponent } from './dashboard.component';
 import { Post }               from  './classes/post';
-import { PostsService }       from './classes/posts.service';
+import { PostsService }       from './services/posts.service';
 import { PostComponent }      from './post.component.ts';
 import { Http } from '@angular/http';
 @Component({
