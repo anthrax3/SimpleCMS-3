@@ -20,11 +20,11 @@ namespace SimpleCMS
 
             // Web API routes
             config.MapHttpAttributeRoutes();
-            var cors = new EnableCorsAttribute("localhost:3000", "*", "*");
+            var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
-                routeTemplate: "api/v1/{controller}/{id}/{param}",
+                routeTemplate: "api/v1/{controller}/{action}/{id}/{param}",
                 defaults: new { id = RouteParameter.Optional, param = RouteParameter.Optional }
             );
         }

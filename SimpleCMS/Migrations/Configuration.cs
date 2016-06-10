@@ -9,7 +9,7 @@ namespace SimpleCMS.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
         }
 
         protected override void Seed(SimpleCMS.DAL.ApplicationContext context)

@@ -111,21 +111,20 @@ export class _default {
     // @param Response 
     // @returns 
     private extractData(res: Response) {
-        let body = res.json();
-        let response = body.data || {};
+        let response = res.json();
 
         // extract response data depending on http status code 
         // errors / messages logged to console
-        if (response.length > 0 && response.httpStatusCode === 200) {
+        if (response.HttpStatusCode === 200) {
             if (response.data != null) {
-                response = response.data;
+                response = response.Data;
             } else {
-                console.log(response.message);
+                console.log(response.Message);
                 response = {}
             }
         }
-        if (response.length > 0 && response.httpStatusCode > 200) {
-            console.log(response.errors);
+        if (response.length > 0 && response.HttpStatusCode > 200) {
+            console.log(response.Errors);
             response = {};
         }
 

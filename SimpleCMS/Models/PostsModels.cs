@@ -21,10 +21,10 @@ namespace SimpleCMS.Models
 
         public DateTime Updated { get; set; }
 
-        public string Category { get; set; }
-
         [Required]
-        public bool Attachment { get; set; }
+        public bool Visible { get; set; }
+
+        public bool? Attachment { get; set; }
 
         public string AttachmentPath { get; set; }
 

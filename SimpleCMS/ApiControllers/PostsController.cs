@@ -53,13 +53,9 @@ namespace SimpleCMS.Controllers
             postToUpdate.Content = postModel.Post.Content;
             postToUpdate.Updated = DateTime.Now;
             postToUpdate.Attachment = postModel.Post.Attachment;
-            if (postToUpdate.Attachment && !string.IsNullOrEmpty(postModel.Post.AttachmentPath))
+            if (postToUpdate.Attachment == true && !string.IsNullOrEmpty(postModel.Post.AttachmentPath))
             {
                 postToUpdate.AttachmentPath = postModel.Post.AttachmentPath;
-            }
-            if (!string.IsNullOrEmpty(postModel.Post.Category))
-            {
-                postToUpdate.Category = postModel.Post.Category;
             }
             _db.SaveChanges();
             ApiResponse.HttpStatusCode = HttpStatusCode.OK;
@@ -97,9 +93,9 @@ namespace SimpleCMS.Controllers
         // POST /api/v1/Posts/AllPosts
         [HttpPost]
         [ResponseType(typeof(ApiResponse<IEnumerable<Posts>>))]
-        public IHttpActionResult AllPosts([FromBody]string apiKey)
+        public IHttpActionResult AllPosts(RequestModel postRequest)
         {
-            if (ValidateApiKey(apiKey, ApiRequest.Request.Url.Authority))
+            if (ValidateApiKey(postRequest.ApiKey, ApiRequest.Request.Url.Authority))
             {
                 ApiResponse.Data = _db.Posts.ToList<Posts>();
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;

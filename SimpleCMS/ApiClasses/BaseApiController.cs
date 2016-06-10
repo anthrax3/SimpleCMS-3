@@ -135,11 +135,11 @@ namespace SimpleCMS.AppClasses
         protected bool ValidateApiKey(string apiKey, string referrer)
         {
             var boolRtn = false;
-            var apiUser = _db.ApiAccounts.FirstOrDefault(
+            var validApiKey = _db.ApiAccounts.Any(a => a.ApiKey.Equals(apiKey));
+            var referrerForKey = _db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(apiKey)).RequestURL.ToString();
 
-                a => a.RequestURL == referrer && a.ApiKey == apiKey
-            ); 
-            if (apiUser != null)
+            if ((referrerForKey == "*" || string.Equals(referrerForKey, referrer, StringComparison.CurrentCultureIgnoreCase)) &&
+                    validApiKey)
             {
                 boolRtn = true; 
             }
