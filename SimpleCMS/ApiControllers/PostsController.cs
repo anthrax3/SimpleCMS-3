@@ -97,7 +97,7 @@ namespace SimpleCMS.Controllers
         {
             if (ValidateApiKey(postRequest.ApiKey, ApiRequest.Request.Url.Authority))
             {
-                ApiResponse.Data = _db.Posts.ToList<Posts>();
+                ApiResponse.Data = _db.Posts.Select(p => new { p.ID, p.Title, p.Content, p.Created, p.Visible, p.Attachment }).ToList(); 
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
             }
             else

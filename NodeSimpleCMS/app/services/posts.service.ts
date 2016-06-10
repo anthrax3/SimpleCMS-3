@@ -32,15 +32,56 @@ export class PostsService {
         }
     }
 
-    public getAllPosts(): Post[] {
+    public getAllPosts(): any {
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
         this._default.httpDefaults.includeKey = true; 
+        let callbackFunction = function extractData(res: Response): any {
+            let response = res.json();
+            let posts = [];
+            // extract response data depending on http status code 
+            // errors / messages logged to console
+            if (response.HttpStatusCode === 200) {
+                if (response.Data != null) {
+                    for (var i = 0, post; post = response.Data[i++];) {
+                        posts.push(new Post(parseInt(post["ID"], 10), post["Title"], post["Content"], post["Created"], String(post["Visible"]).toLowerCase() === "true", String(post["Attachment"]).toLowerCase() === "true"));
+                    }
+                } else {
+                    console.log(response.Message);
+                    response = {}
+                }
+            }
+            if (response.length > 0 && response.HttpStatusCode > 200) {
+                console.log(response.Errors);
+                response = {};
+            }
 
-        let promise = this._default.post<Post[]>();
-        promise.then(
-            posts => this.postList = posts
-        );
+            return posts;
+        }
+   
+        return this._default.post<Post[]>(callbackFunction);
+    }
 
-        return this.postList;
+    // callback method used for http requests 
+    // @param Response 
+    // @returns 
+    public extractData<T>(res: Response): T {
+        let response = res.json();
+
+        // extract response data depending on http status code 
+        // errors / messages logged to console
+        if (response.HttpStatusCode === 200) {
+            if (response.Data != null) {
+                response = response.Data;
+            } else {
+                console.log(response.Message);
+                response = {}
+            }
+        }
+        if (response.length > 0 && response.HttpStatusCode > 200) {
+            console.log(response.Errors);
+            response = {};
+        }
+
+        return response;
     }
 }

@@ -30,12 +30,14 @@ import { Http } from '@angular/http';
     }
 ])
 export class AppComponent {
-    public title = "Posts";
+    public title: string;
     public posts: Post[];
     private postService: PostsService;
 
-    constructor(http:Http) {
+    constructor(http: Http) {
+        this.title = "Posts";
         this.postService = new PostsService(http);
-        this.posts = this.postService.getAllPosts(); 
+        this.postService.getAllPosts()
+            .then(posts => this.posts = posts);
     } 
 }

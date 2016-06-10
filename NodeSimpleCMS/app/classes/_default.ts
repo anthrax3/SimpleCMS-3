@@ -80,7 +80,7 @@ export class _default {
     // returns promise with data of response.data (if 200 OK) 
     // @params generic type T (type of response.data)
     // @return Promise<T>
-    public post<T>(): Promise<T> {
+    public post<T>(callbackFunction?): Promise<T> {
         if (this.httpDefaults.url != null && this.httpDefaults.url.length > 0) {
             this.httpDefaults.url = this._apiUrl + this.httpDefaults.url;
         }
@@ -101,9 +101,10 @@ export class _default {
         headers.append("Content-Type", this.httpDefaults.contentType);
         let options = new RequestOptions({ headers: headers }); 
 
+        let callback = callbackFunction === null ? this.extractData : callbackFunction; 
         return this._http.post(this.httpDefaults.url, this.httpDefaults.data, options)
                             .toPromise()
-                            .then(this.extractData)
+                            .then(callback)
                             .catch(this.handleError);
     }
 
@@ -116,7 +117,7 @@ export class _default {
         // extract response data depending on http status code 
         // errors / messages logged to console
         if (response.HttpStatusCode === 200) {
-            if (response.data != null) {
+            if (response.Data != null) {
                 response = response.Data;
             } else {
                 console.log(response.Message);

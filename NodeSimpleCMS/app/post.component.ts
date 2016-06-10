@@ -29,7 +29,8 @@ export class PostComponent {
                 id: i,
                 title: "Mock post title number " + i,
                 content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque elementum felis lorem, et cursus nisl porttitor et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis rhoncus fringilla dictum. Aenean fringilla imperdiet velit, in finibus augue posuere sit amet. Sed eget semper lacus. Cras mollis nulla a consequat condimentum. Duis fringilla ligula quis justo malesuada volutpat. Pellentesque interdum vulputate neque, vel accumsan nisl pharetra in. Donec venenatis mauris vel convallis ornare. Morbi urna nibh, euismod quis elit nec, sollicitudin rutrum ex.",
-                category: "default",
+                created: new Date(),
+                visible: true,
                 attachment: false,
                 attachmentPath: null,
                 comments: null

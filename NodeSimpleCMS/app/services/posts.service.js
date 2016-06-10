@@ -29,12 +29,53 @@ var PostsService = (function () {
         }
     };
     PostsService.prototype.getAllPosts = function () {
-        var _this = this;
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
         this._default.httpDefaults.includeKey = true;
-        var promise = this._default.post();
-        promise.then(function (posts) { return _this.postList = posts; });
-        return this.postList;
+        var callbackFunction = function extractData(res) {
+            var response = res.json();
+            var posts = [];
+            // extract response data depending on http status code 
+            // errors / messages logged to console
+            if (response.HttpStatusCode === 200) {
+                if (response.Data != null) {
+                    for (var i = 0, post; post = response.Data[i++];) {
+                        posts.push(new post_1.Post(parseInt(post["ID"], 10), post["Title"], post["Content"], post["Created"], String(post["Visible"]).toLowerCase() === "true", String(post["Attachment"]).toLowerCase() === "true"));
+                    }
+                }
+                else {
+                    console.log(response.Message);
+                    response = {};
+                }
+            }
+            if (response.length > 0 && response.HttpStatusCode > 200) {
+                console.log(response.Errors);
+                response = {};
+            }
+            return posts;
+        };
+        return this._default.post(callbackFunction);
+    };
+    // callback method used for http requests 
+    // @param Response 
+    // @returns 
+    PostsService.prototype.extractData = function (res) {
+        var response = res.json();
+        // extract response data depending on http status code 
+        // errors / messages logged to console
+        if (response.HttpStatusCode === 200) {
+            if (response.Data != null) {
+                response = response.Data;
+            }
+            else {
+                console.log(response.Message);
+                response = {};
+            }
+        }
+        if (response.length > 0 && response.HttpStatusCode > 200) {
+            console.log(response.Errors);
+            response = {};
+        }
+        return response;
     };
     PostsService = __decorate([
         core_1.Injectable(), 
