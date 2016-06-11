@@ -2,6 +2,7 @@ import { Injectable }     from "@angular/core";
 import { Http, Response } from "@angular/http";
 import { _default }       from "../classes/_default";
 import { Post }           from "../classes/post";
+import { Logger }         from "../classes/logger";
 
 @Injectable()
 export class PostsService {
@@ -40,18 +41,18 @@ export class PostsService {
             let posts = [];
             // extract response data depending on http status code 
             // errors / messages logged to console
-            if (response.HttpStatusCode === 200) {
-                if (response.Data != null) {
-                    for (var i = 0, post; post = response.Data[i++];) {
-                        posts.push(new Post(parseInt(post["ID"], 10), post["Title"], post["Content"], post["Created"], String(post["Visible"]).toLowerCase() === "true", String(post["Attachment"]).toLowerCase() === "true"));
+            if (response.httpStatusCode === 200) {
+                if (response.data != null) {
+                    for (var i = 0, post; post = response.data[i++];) {
+                        posts.push(new Post(parseInt(post["iD"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
                     }
                 } else {
-                    console.log(response.Message);
                     response = {}
                 }
+                Logger.LogMessages(response.messages); 
             }
-            if (response.length > 0 && response.HttpStatusCode > 200) {
-                console.log(response.Errors);
+            if (response.httpStatusCode > 200) {
+                Logger.LogErrors(response.errors);
                 response = {};
             }
 

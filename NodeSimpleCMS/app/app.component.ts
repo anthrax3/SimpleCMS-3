@@ -40,4 +40,14 @@ export class AppComponent {
         this.postService.getAllPosts()
             .then(posts => this.posts = posts);
     } 
+
+    public formatDate(date: Date): string {
+        return new Date(date.toString()).toLocaleDateString();
+    }
+
+    public formatExcerpt(content: string): string {
+        let regex = /(<([^>]+)>)/ig;
+        content = content.replace(regex, ""); 
+        return content.substring(0, 250) + "...";
+    }
 }

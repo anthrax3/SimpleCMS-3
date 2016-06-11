@@ -12,6 +12,7 @@ var core_1 = require("@angular/core");
 var http_1 = require("@angular/http");
 var _default_1 = require("../classes/_default");
 var post_1 = require("../classes/post");
+var logger_1 = require("../classes/logger");
 var PostsService = (function () {
     function PostsService(http) {
         this._default = new _default_1._default(http);
@@ -36,19 +37,19 @@ var PostsService = (function () {
             var posts = [];
             // extract response data depending on http status code 
             // errors / messages logged to console
-            if (response.HttpStatusCode === 200) {
-                if (response.Data != null) {
-                    for (var i = 0, post; post = response.Data[i++];) {
-                        posts.push(new post_1.Post(parseInt(post["ID"], 10), post["Title"], post["Content"], post["Created"], String(post["Visible"]).toLowerCase() === "true", String(post["Attachment"]).toLowerCase() === "true"));
+            if (response.httpStatusCode === 200) {
+                if (response.data != null) {
+                    for (var i = 0, post; post = response.data[i++];) {
+                        posts.push(new post_1.Post(parseInt(post["iD"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
                     }
                 }
                 else {
-                    console.log(response.Message);
                     response = {};
                 }
+                logger_1.Logger.LogMessages(response.messages);
             }
-            if (response.length > 0 && response.HttpStatusCode > 200) {
-                console.log(response.Errors);
+            if (response.httpStatusCode > 200) {
+                logger_1.Logger.LogErrors(response.errors);
                 response = {};
             }
             return posts;

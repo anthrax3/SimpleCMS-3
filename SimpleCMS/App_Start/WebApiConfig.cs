@@ -27,6 +27,9 @@ namespace SimpleCMS
                 routeTemplate: "api/v1/{controller}/{action}/{id}/{param}",
                 defaults: new { id = RouteParameter.Optional, param = RouteParameter.Optional }
             );
+
+            // Use camelCase for JSON data. 
+            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }
     }
 }

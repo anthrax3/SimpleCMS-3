@@ -9,7 +9,7 @@
 DBSimpleCMS/
 DBSimpleCMS/*
 NodeSimpleCMS/.ntvs_analysis.dat
-
+NodeSimpleCMS/app/services/*.js
 # Build results
 
 [Dd]ebug/

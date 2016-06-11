@@ -47,6 +47,7 @@
     <TypeScriptCompile Include="app\app.component.ts" />
     <TypeScriptCompile Include="app\classes\http.defaults.ts" />
     <TypeScriptCompile Include="app\classes\error.messages.ts" />
+    <TypeScriptCompile Include="app\classes\logger.ts" />
     <TypeScriptCompile Include="app\classes\post.ts" />
     <TypeScriptCompile Include="app\services\posts.service.ts" />
     <TypeScriptCompile Include="app\classes\_default.ts" />
@@ -58,7 +59,6 @@
     <Content Include="app\classes\_default.js.map" />
     <Content Include="app\dashbaord.component.html" />
     <Content Include="app\dashboard.component.js.map" />
-    <Content Include="app\main.js.map" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <TypeScriptCompile Include="app\post.component.ts" />
@@ -83,7 +83,6 @@
     <Compile Include="app\services\posts.service.js" />
     <Compile Include="app\classes\_default.js" />
     <Compile Include="app\dashboard.component.js" />
-    <Compile Include="app\main.js" />
     <Compile Include="systemjs.config.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->

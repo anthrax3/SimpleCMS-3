@@ -4,7 +4,7 @@ body {
     font-family: Lato	
 }
 a {
-	font-weight:200;
+	font-weight:300;
 }
 .post textarea {
 	display:none;
@@ -14,6 +14,9 @@ a {
 	height: 525px;
 }
 
+.posts.list-unstyled {
+    margin-top:-25px;
+}
 .center-button {
 	text-align:center;
 	margin-top:30px;
@@ -26,7 +29,7 @@ a {
 	list-style-type: none;
 }
 h2 {
-	font-weight:200;
+	font-weight:300;
     font-family: Lato
 }
 
@@ -56,7 +59,7 @@ h2 a:hover {
 }
 
 .comment header {
-	font-weight:200;
+	font-weight:300;
 }
 
 .comment p {
@@ -90,11 +93,11 @@ h2 a:hover {
 
 .post-date {
 	color: #666;
-	font-weight: 200;
+	font-weight: 300;
 }
 
 .panel-heading {
-	font-weight: 200;
+	font-weight: 300;
 }
 
 .reply-list {

@@ -7,9 +7,9 @@
                     <div class="posts">
                         <ul class="posts list-unstyled">
                             <li *ngFor="let post of posts">
-                            <h2><a href="/post/{{ post.id }}">{{ post.title}}</a></h2>
-                             <span class="post-date">{{ post.created }}</span>
-                                
+                                <h2><a href="/post/{{ post.id }}">{{ post.title}}</a></h2>
+                                <span class="post-date">{{ formatDate(post.created) }}</span>
+                                <p>{{ formatExcerpt(post.content) }}</p>
                             </li>
                         </ul>
                     </div> <!-- /.posts -->

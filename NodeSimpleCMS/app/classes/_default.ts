@@ -116,16 +116,16 @@ export class _default {
 
         // extract response data depending on http status code 
         // errors / messages logged to console
-        if (response.HttpStatusCode === 200) {
-            if (response.Data != null) {
-                response = response.Data;
+        if (response.httpStatusCode === 200) {
+            if (response.data != null) {
+                response = response.data;
             } else {
-                console.log(response.Message);
+                console.log(response.message);
                 response = {}
             }
         }
-        if (response.length > 0 && response.HttpStatusCode > 200) {
-            console.log(response.Errors);
+        if (response.httpStatusCode > 200) {
+            console.log(response.errors);
             response = {};
         }
 
