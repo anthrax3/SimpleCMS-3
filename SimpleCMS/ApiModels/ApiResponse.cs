@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using SimpleCMS.ApiModels;
 
-namespace SimpleCMS.Models
+namespace SimpleCMS.ApiModels
 {
     /// <summary>
     /// Contains properties and methods used to form an API response. Data property
@@ -13,12 +12,6 @@ namespace SimpleCMS.Models
     /// <typeparam name="T"></typeparam>
     public class ApiResponse<T>
     {
-        /// <summary>
-        /// Internal property used to keep track of 
-        /// state of response 
-        /// </summary>
-        internal bool _IsValid { get; set; }
-
         /// <summary>
         /// HttpStatusCode of response. Setting HttpStatusCode also
         /// adds the string value to Messages list.
@@ -65,8 +58,6 @@ namespace SimpleCMS.Models
             Errors = new List<string>();
 
             Messages = new List<string>();
-
-            _IsValid = true; 
         }
 
         /// <summary>
@@ -77,7 +68,6 @@ namespace SimpleCMS.Models
         /// <param name="httpStatusCode"></param>
         public void AddError(string errorMessage, HttpStatusCode httpStatusCode)
         {
-            if (_IsValid) _IsValid = false;
             Errors.Add(errorMessage);
             HttpStatusCode = httpStatusCode; 
         }
@@ -90,7 +80,6 @@ namespace SimpleCMS.Models
         /// <param name="httpStatusCode"></param>
         public void AddRangeError(IEnumerable<string> errorMessages, HttpStatusCode httpStatusCode)
         {
-            if (_IsValid) _IsValid = false;
             Errors.AddRange(errorMessages);
             HttpStatusCode = httpStatusCode;
         }

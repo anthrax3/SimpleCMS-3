@@ -6,6 +6,8 @@ import { DashboardComponent } from './dashboard.component';
 import { Post }               from  './classes/post';
 import { PostsService }       from './services/posts.service';
 import { Http }  from '@angular/http'
+import { _default} from './classes/_default'; 
+
 @Component({
     selector: 'simple-cms',
     templateUrl: 'app/post.component.html',
@@ -19,22 +21,11 @@ export class PostComponent {
     public title: string;
     public post: Post;
     private postService: PostsService;
+    public default: _default; 
 
     constructor(public id: number, http: Http) {
         this.postService = new PostsService(http);
-        // mock posts to test angular 
-        //this.post = this.postService.getPost(id); 
-        for (var i = 0; i < 5; i++) {
-            this.post = {
-                id: i,
-                title: "Mock post title number " + i,
-                content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque elementum felis lorem, et cursus nisl porttitor et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis rhoncus fringilla dictum. Aenean fringilla imperdiet velit, in finibus augue posuere sit amet. Sed eget semper lacus. Cras mollis nulla a consequat condimentum. Duis fringilla ligula quis justo malesuada volutpat. Pellentesque interdum vulputate neque, vel accumsan nisl pharetra in. Donec venenatis mauris vel convallis ornare. Morbi urna nibh, euismod quis elit nec, sollicitudin rutrum ex.",
-                created: new Date(),
-                visible: true,
-                attachment: false,
-                attachmentPath: null,
-                comments: null
-            };
-        } // end for loop 
-    } // end constructor 
+        this.post = this.postService.getPost(id); 
+        this.default = new _default(http);   
+    } 
 }

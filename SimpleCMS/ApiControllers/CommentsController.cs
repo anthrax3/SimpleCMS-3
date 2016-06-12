@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Net;
 using System.Web.Http;
-using SimpleCMS.AppClasses;
+using SimpleCMS.ApiClasses;
 using SimpleCMS.Models;
+using SimpleCMS.ApiModels;
 using System.Web.Http.Description;
 
 namespace SimpleCMS.Controllers
@@ -16,21 +17,22 @@ namespace SimpleCMS.Controllers
         public IHttpActionResult ByPost([FromUri]int id, [FromBody]string apiKey)
         {
             var postID = id; // to distinguish between comment and post id 
-
-            if (!ValidateApiKey(apiKey, ApiRequest.Request.Url.ToString()))
+            var isValid = true;
+            if (!ValidateApiKey(apiKey))
             {
                 ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
+                isValid = false;
             }
 
-            if (ApiRequest.IsValid && !_db.Posts.Any(p => p.ID == postID))
+            if (isValid && !_db.Posts.Any(p => p.ID == postID))
             {
                 ApiResponse.Messages.Add(ErrorMessages.PostNotFound(postID));
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
-                ApiRequest.IsValid = false;
+                isValid = false;
             }
 
             // return early if bad request 
-            if (!ApiRequest.IsValid)
+            if (!isValid)
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
             
             // valid ApiRequest

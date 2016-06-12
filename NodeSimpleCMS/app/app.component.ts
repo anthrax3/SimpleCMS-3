@@ -6,7 +6,9 @@ import { DashboardComponent } from './dashboard.component';
 import { Post }               from  './classes/post';
 import { PostsService }       from './services/posts.service';
 import { PostComponent }      from './post.component.ts';
-import { Http } from '@angular/http';
+import { Http }               from '@angular/http';
+import { _default }           from './classes/_default'; 
+
 @Component({
     selector: 'simple-cms',
     templateUrl: 'app/app.component.html',
@@ -32,18 +34,18 @@ import { Http } from '@angular/http';
 export class AppComponent {
     public title: string;
     public posts: Post[];
+    public default: _default; 
     private postService: PostsService;
 
     constructor(http: Http) {
+        //if (page === undefined || page === null)
+        //    page = 1;
         this.title = "Posts";
         this.postService = new PostsService(http);
-        this.postService.getAllPosts()
+        this.postService.getAllPosts(1)
             .then(posts => this.posts = posts);
+        this.default = new _default(http); 
     } 
-
-    public formatDate(date: Date): string {
-        return new Date(date.toString()).toLocaleDateString();
-    }
 
     public formatExcerpt(content: string): string {
         let regex = /(<([^>]+)>)/ig;

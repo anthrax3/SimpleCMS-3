@@ -45,6 +45,10 @@ export class _default {
         }
         return true;
     }
+
+    public formatDate(date: Date): string {
+        return new Date(date.toString()).toLocaleDateString();
+    }
    
     // submits a http get request to API_URL + httpDefaults.url 
     // returns promise with data of response.data (if 200 OK) 

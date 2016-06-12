@@ -3,10 +3,10 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using SimpleCMS.Models;
-using SimpleCMS.AppClasses;
+using SimpleCMS.ApiModels;
+using SimpleCMS.ApiClasses;
 using System.Web.Http.Description;
 using System.Collections.Generic;
-using System.Web.Http.Cors;
 
 namespace SimpleCMS.Controllers
 {
@@ -18,10 +18,19 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof (ApiResponse<object>))]
         public IHttpActionResult Create(PostRequestModel postModel)
         {
-            ValidateRequest(postModel);
+            if(!ModelState.IsValid)
+            {
+                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                postModel._IsValid = false;
+            }
+
+            if (postModel._IsValid)
+            {
+                postModel.ValidateApiKey(ApiResponse, ApiRequest, _db);
+            }
 
             // return early if bad request 
-            if (!ApiRequest.IsValid)
+            if (!postModel._IsValid)
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
 
             // valid ApiRequest. create post
@@ -40,10 +49,13 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof(ApiResponse<object>))]
         public IHttpActionResult Update(PostRequestModel postModel)
         {
-            ValidateRequest(postModel);
-
+            if (!ModelState.IsValid)
+            {
+                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                postModel._IsValid = false;
+            }
             // return early if bad request 
-            if (!ApiRequest.IsValid)
+            if (!postModel._IsValid)
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
 
             // valid ApiRequest. update post
@@ -67,19 +79,21 @@ namespace SimpleCMS.Controllers
         // POST api/v1/Posts/ByID/{id}
         [HttpPost]
         [ResponseType(typeof (ApiResponse<Posts>))]
-        public IHttpActionResult Get([FromUri]int id, [FromBody]string apiKey)
+        public IHttpActionResult Get([FromUri]int? id, [FromBody]string apiKey)
         {
-            if (!ValidateApiKey(apiKey, ApiRequest.Request.Url.Authority))
+            var isValid = true;
+            if (!ValidateApiKey(apiKey))
             {
                 ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
+                isValid = false;
             }
             
             // return early if invalid api key
-            if (!ApiRequest.IsValid)
+            if (isValid && id == null)
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
 
             // return early if invalid post id 
-            if (ApiRequest.IsValid && id < 0)
+            if (isValid && id < 0)
             {
                 ApiResponse.AddError("Invalid id", HttpStatusCode.BadRequest);
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
@@ -93,12 +107,34 @@ namespace SimpleCMS.Controllers
         // POST /api/v1/Posts/AllPosts
         [HttpPost]
         [ResponseType(typeof(ApiResponse<IEnumerable<Posts>>))]
-        public IHttpActionResult AllPosts(RequestModel postRequest)
+        public IHttpActionResult AllPosts(AllPostRequestModel postRequest)
         {
-            if (ValidateApiKey(postRequest.ApiKey, ApiRequest.Request.Url.Authority))
+            if(!ModelState.IsValid)
+            {
+                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                postRequest._IsValid = false;
+            }
+
+            if (postRequest._IsValid)
+            {
+                postRequest.ValidateRequest(ApiResponse, ApiRequest, _db);
+            }
+
+            if (postRequest._IsValid)
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
-                ApiResponse.Data = _db.Posts.Select(p => new { p.ID, p.Title, p.Content, p.Created, p.Visible, p.Attachment }).ToList(); 
+                var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
+                ApiResponse.Data = _db.Posts.OrderByDescending(p => p.Created)
+                                            .Skip(((int)postRequest.PageNumber - 1) * (int)postRequest.PageSize)
+                                            .Take((int)postRequest.PageSize)
+                                            .Select(p => new {
+                                                p.ID,
+                                                p.Title,
+                                                p.Content,
+                                                p.Created,
+                                                p.Visible,
+                                                p.Attachment
+                                            }).ToList(); 
             }
             else
             {
@@ -113,10 +149,18 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof (ApiResponse<IEnumerable<Posts>>))]
         public IHttpActionResult ByUser(ByUserRequestModel userModel)
         {
-            ValidateRequest(userModel);
+            if (!ModelState.IsValid)
+            {
+                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                userModel._IsValid = false;
+            }
 
+            if (userModel._IsValid)
+            {
+                userModel.ValidateRequest(ApiResponse, ApiRequest, _db); 
+            }
             // return early if bad request
-            if (!ApiRequest.IsValid)
+            if (!userModel._IsValid)
                 return Content(ApiResponse.HttpStatusCode, ApiResponse);
             
             // valid ApiRequest

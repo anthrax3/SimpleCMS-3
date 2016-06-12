@@ -8,6 +8,7 @@ using System.Web.Http.ModelBinding;
 using Newtonsoft.Json;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using SimpleCMS.ApiClasses;
 
 namespace SimpleCMS.AppClasses
 {

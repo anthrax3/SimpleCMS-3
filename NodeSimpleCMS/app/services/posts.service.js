@@ -20,18 +20,43 @@ var PostsService = (function () {
         this.postList = null;
     }
     PostsService.prototype.getPost = function (id) {
-        var _this = this;
         if (id > 0) {
             this._default.httpDefaults.url = "/api/v1/Posts/Get/" + id;
             this._default.httpDefaults.includeKey = true;
-            var promise = this._default.post();
-            promise.then(function (post) { return _this.post = post; });
-            return this.post;
-        }
+            var callbackFunction = function extractData(res) {
+                var response = res.json();
+                var post;
+                ;
+                // extract response data depending on http status code 
+                // errors / messages logged to console
+                if (response.httpStatusCode === 200) {
+                    if (response.data != null) {
+                        post = new post_1.Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true");
+                    }
+                    else {
+                        response = {};
+                    }
+                    logger_1.Logger.LogMessages(response.messages);
+                } // end if response.httpStatusCode === 200
+                if (response.httpStatusCode > 200) {
+                    logger_1.Logger.LogErrors(response.errors);
+                    response = {};
+                } // end if response.httpStatusCode > 200 
+                return post;
+            }; // end callbackFunction 
+            return this._default.post(callbackFunction);
+        } // end if id > 0
+        return new post_1.Post();
     };
-    PostsService.prototype.getAllPosts = function () {
+    PostsService.prototype.getAllPosts = function (pageNumber) {
+        if (typeof (pageNumber) === "number")
+            pageNumber = 1;
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
         this._default.httpDefaults.includeKey = true;
+        this._default.httpDefaults.data = JSON.stringify({
+            "PageNumber": pageNumber,
+            "PageSize": 5
+        });
         var callbackFunction = function extractData(res) {
             var response = res.json();
             var posts = [];
@@ -40,20 +65,20 @@ var PostsService = (function () {
             if (response.httpStatusCode === 200) {
                 if (response.data != null) {
                     for (var i = 0, post; post = response.data[i++];) {
-                        posts.push(new post_1.Post(parseInt(post["iD"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
+                        posts.push(new post_1.Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
                     }
                 }
                 else {
                     response = {};
                 }
                 logger_1.Logger.LogMessages(response.messages);
-            }
+            } // end response.httpStatusCode === 200 
             if (response.httpStatusCode > 200) {
                 logger_1.Logger.LogErrors(response.errors);
                 response = {};
-            }
+            } // end if response.httpStatusCode > 200
             return posts;
-        };
+        }; // end callbackFunction 
         return this._default.post(callbackFunction);
     };
     // callback method used for http requests 

@@ -187,8 +187,9 @@
     <Compile Include="ApiClasses\ApiModelBinderProvider.cs" />
     <Compile Include="ApiClasses\BaseApiController.cs" />
     <Compile Include="ApiClasses\ErrorMessages.cs" />
+    <Compile Include="ApiClasses\ModelStateAssistant.cs" />
+    <Compile Include="ApiClasses\Swashbuckler\ApplySchemaVendorExtensions.cs" />
     <Compile Include="ApiClasses\Swashbuckler\HandleModelBinding.cs" />
-    <Compile Include="ApiModels\ApiRequest.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
@@ -253,12 +254,12 @@
       <DependentUpon>201606100108382_UpdatingPostsStructureAgain.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="ApiModels\AccountBindingModels.cs" />
-    <Compile Include="ApiModels\AccountViewModels.cs" />
-    <Compile Include="ApiModels\ApiAccounts.cs" />
+    <Compile Include="Models\AccountBindingModels.cs" />
+    <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\ApiAccounts.cs" />
     <Compile Include="ApiModels\ApiResponse.cs" />
     <Compile Include="Models\Comments.cs" />
-    <Compile Include="ApiModels\IdentityModels.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\PostsModels.cs" />
     <Compile Include="ApiModels\RequestModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
