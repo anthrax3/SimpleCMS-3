@@ -1,5 +1,5 @@
 ﻿import { Component }          from '@angular/core';
-import { RouteConfig,
+import { RouteConfig, RouteParams,
     ROUTER_DIRECTIVES,
     ROUTER_PROVIDERS }   from '@angular/router-deprecated';
 import { DashboardComponent } from './dashboard.component';
@@ -23,7 +23,8 @@ export class PostComponent {
     private postService: PostsService;
     public default: _default; 
 
-    constructor(public id: number, http: Http) {
+    constructor(http: Http, private _routeParams: RouteParams) {
+        let id = parseInt(this._routeParams.get("id"));
         this.postService = new PostsService(http);
         this.post = this.postService.getPost(id); 
         this.default = new _default(http);   

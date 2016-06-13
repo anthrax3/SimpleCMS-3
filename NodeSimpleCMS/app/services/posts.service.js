@@ -18,6 +18,7 @@ var PostsService = (function () {
         this._default = new _default_1._default(http);
         this.post = new post_1.Post();
         this.postList = null;
+        this.totalPages = 1;
     }
     PostsService.prototype.getPost = function (id) {
         if (id > 0) {
@@ -31,7 +32,7 @@ var PostsService = (function () {
                 // errors / messages logged to console
                 if (response.httpStatusCode === 200) {
                     if (response.data != null) {
-                        post = new post_1.Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true");
+                        post = new post_1.Post(parseInt(String(post["id"]), 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true");
                     }
                     else {
                         response = {};
@@ -49,7 +50,7 @@ var PostsService = (function () {
         return new post_1.Post();
     };
     PostsService.prototype.getAllPosts = function (pageNumber) {
-        if (typeof (pageNumber) === "number")
+        if (typeof (pageNumber) === "undefined" || isNaN(pageNumber))
             pageNumber = 1;
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
         this._default.httpDefaults.includeKey = true;
@@ -57,16 +58,20 @@ var PostsService = (function () {
             "PageNumber": pageNumber,
             "PageSize": 5
         });
+        var scopedTotalPages = this.totalPages;
         var callbackFunction = function extractData(res) {
             var response = res.json();
             var posts = [];
             // extract response data depending on http status code 
             // errors / messages logged to console
             if (response.httpStatusCode === 200) {
-                if (response.data != null) {
-                    for (var i = 0, post; post = response.data[i++];) {
-                        posts.push(new post_1.Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
+                if (response.data != null && response.data["posts"] != null) {
+                    for (var i = 0, post; post = response.data["posts"][i++];) {
+                        if (String(post["id"]).length > 0) {
+                            posts.push(new post_1.Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
+                        }
                     }
+                    scopedTotalPages = !isNaN(parseInt(response.data["totalPages"], 10)) ? parseInt(response.data["totalPages"]) : 1;
                 }
                 else {
                     response = {};
@@ -79,6 +84,7 @@ var PostsService = (function () {
             } // end if response.httpStatusCode > 200
             return posts;
         }; // end callbackFunction 
+        this.totalPages = scopedTotalPages; // add updated totalPages back to this
         return this._default.post(callbackFunction);
     };
     // callback method used for http requests 

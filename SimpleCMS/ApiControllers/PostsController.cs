@@ -124,17 +124,23 @@ namespace SimpleCMS.Controllers
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
-                ApiResponse.Data = _db.Posts.OrderByDescending(p => p.Created)
+                var dataList = new Dictionary<string, object>();
+                dataList.Add("posts", _db.Posts.OrderByDescending(p => p.Created)
                                             .Skip(((int)postRequest.PageNumber - 1) * (int)postRequest.PageSize)
                                             .Take((int)postRequest.PageSize)
-                                            .Select(p => new {
+                                            .Select(p => new
+                                            {
                                                 p.ID,
                                                 p.Title,
                                                 p.Content,
                                                 p.Created,
                                                 p.Visible,
                                                 p.Attachment
-                                            }).ToList(); 
+                                            }).ToList()
+                );
+                dataList.Add("totalPages", totalPages);
+
+                ApiResponse.Data = dataList;
             }
             else
             {

@@ -1,7 +1,9 @@
 // Imports for loading & configuring the in-memory web api
 import { provide }    from '@angular/core';
 
-import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import { RouteConfig, RouteParams, Router,
+    ROUTER_DIRECTIVES, ROUTER_PROVIDERS }        from '@angular/router-deprecated';
+
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 // import 'rxjs/Rx'; this will load all features
@@ -15,5 +17,8 @@ import { HTTP_PROVIDERS } from '@angular/http';
 import { AppComponent }   from './app.component';
 
 bootstrap(AppComponent, [
-    HTTP_PROVIDERS
+    HTTP_PROVIDERS,
+    ROUTER_DIRECTIVES,
+    ROUTER_PROVIDERS
+
 ]);

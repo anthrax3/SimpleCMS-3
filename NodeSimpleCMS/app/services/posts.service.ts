@@ -13,10 +13,13 @@ export class PostsService {
 
     public postList: Post[];
 
+    public totalPages: number;
+
     constructor(http: Http) {
         this._default = new _default(http);
         this.post = new Post();
         this.postList = null;
+        this.totalPages = 1;
     }
 
     public getPost(id: number): any {
@@ -50,7 +53,7 @@ export class PostsService {
     }
 
     public getAllPosts(pageNumber?: number): any {
-        if (typeof(pageNumber) === "number")
+        if (typeof(pageNumber) === "undefined" || isNaN(pageNumber))
             pageNumber = 1;  
 
         this._default.httpDefaults.url = "/api/v1/Posts/AllPosts";
@@ -59,16 +62,20 @@ export class PostsService {
             "PageNumber": pageNumber,
             "PageSize" : 5
         });
+        let scopedTotalPages = this.totalPages;
         let callbackFunction = function extractData(res: Response): any {
             let response = res.json();
             let posts = [];
             // extract response data depending on http status code 
             // errors / messages logged to console
             if (response.httpStatusCode === 200) {
-                if (response.data != null) {
-                    for (var i = 0, post; post = response.data[i++];) {
-                        posts.push(new Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
+                if (response.data != null && response.data["posts"] != null) {
+                    for (var i = 0, post; post = response.data["posts"][i++];) {
+                        if (String(post["id"]).length > 0) {
+                            posts.push(new Post(parseInt(post["id"], 10), post["title"], post["content"], post["created"], String(post["visible"]).toLowerCase() === "true", String(post["attachment"]).toLowerCase() === "true"));
+                        }
                     }
+                    scopedTotalPages = !isNaN(parseInt(response.data["totalPages"], 10)) ? parseInt(response.data["totalPages"]) : 1;
                 } else {
                     response = {}
                 }
@@ -81,7 +88,7 @@ export class PostsService {
 
             return posts;
         } // end callbackFunction 
-   
+        this.totalPages = scopedTotalPages; // add updated totalPages back to this
         return this._default.post<Post[]>(callbackFunction);
     }
 

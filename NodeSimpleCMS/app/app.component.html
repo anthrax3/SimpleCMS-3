@@ -2,19 +2,35 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
         	<div class="panel panel-default">
-                <div class="panel-heading">{{title}}</div>
+                <div class="panel-heading"><a [routerLink]="['Posts', { page: 1 }]">{{title}}</a></div>
                 <div class="panel-body">
                     <div class="posts">
                         <ul class="posts list-unstyled">
                             <li *ngFor="let post of posts">
-                                <h2><a href="/post/{{ post.id }}">{{ post.title}}</a></h2>
+                                <h2><a [routerLink]="['Post', { id: post.id }]">{{ post.title}}</a></h2>
                                 <span class="post-date">{{ default.formatDate(post.created) }}</span>
                                 <p>{{ formatExcerpt(post.content) }}</p>
                             </li>
                         </ul>
+                        <nav>
+                        <ul class="pagination">
+                            <li>
+                                <a href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="active"><a href="#">1</a></li>
+                            <li>
+                                <a href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                        </nav>
                     </div> <!-- /.posts -->
                 </div> <!-- /.panel-body -->
            </div> <!-- /.panel-default -->
          </div> <!-- /.col-md-10 -->
      </div> <!-- /.row -->
 </div> <!-- /.container -->
+<router-outlet></router-outlet>
