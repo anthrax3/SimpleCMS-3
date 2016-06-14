@@ -15,6 +15,8 @@ export class PostsService {
 
     public totalPages: number;
 
+    public static get POSTS_PER_PAGE():number { return 5; }
+
     constructor(http: Http) {
         this._default = new _default(http);
         this.post = new Post();
@@ -60,7 +62,7 @@ export class PostsService {
         this._default.httpDefaults.includeKey = true; 
         this._default.httpDefaults.data = JSON.stringify({
             "PageNumber": pageNumber,
-            "PageSize" : 5
+            "PageSize": PostsService.POSTS_PER_PAGE
         });
         let scopedTotalPages = this.totalPages;
         let callbackFunction = function extractData(res: Response): any {
@@ -97,7 +99,7 @@ export class PostsService {
         this._default.httpDefaults.includeKey = true;
         this._default.httpDefaults.data = JSON.stringify({
             "PageNumber": 1,
-            "PageSize": 5
+            "PageSize": PostsService.POSTS_PER_PAGE
         });
         let getTotalPagesCallback = function extractDataTotalPages(res: Response): any {
             let response = res.json();

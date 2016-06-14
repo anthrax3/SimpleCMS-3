@@ -20,6 +20,11 @@ var PostsService = (function () {
         this.postList = null;
         this.totalPages = 1;
     }
+    Object.defineProperty(PostsService, "POSTS_PER_PAGE", {
+        get: function () { return 5; },
+        enumerable: true,
+        configurable: true
+    });
     PostsService.prototype.getPost = function (id) {
         if (id > 0) {
             this._default.httpDefaults.url = "/api/v1/Posts/Get/" + id;
@@ -56,7 +61,7 @@ var PostsService = (function () {
         this._default.httpDefaults.includeKey = true;
         this._default.httpDefaults.data = JSON.stringify({
             "PageNumber": pageNumber,
-            "PageSize": 5
+            "PageSize": PostsService.POSTS_PER_PAGE
         });
         var scopedTotalPages = this.totalPages;
         var callbackFunction = function extractData(res) {
@@ -92,7 +97,7 @@ var PostsService = (function () {
         this._default.httpDefaults.includeKey = true;
         this._default.httpDefaults.data = JSON.stringify({
             "PageNumber": 1,
-            "PageSize": 5
+            "PageSize": PostsService.POSTS_PER_PAGE
         });
         var getTotalPagesCallback = function extractDataTotalPages(res) {
             var response = res.json();

@@ -66,7 +66,7 @@ export class AppComponent {
         this.postService.getAllPosts(pageNumber)
             .then(posts => this.posts = posts);
         // prevent page jumping 
-        $(".posts").hide();
+        $(".posts").hide().height("600px");
         setTimeout(function () {
             //$(".posts").slideToggle(250);
             $(".posts").show();
