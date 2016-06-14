@@ -2,6 +2,9 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
         	<div class="panel panel-default">
+                <div *ngFor="let pageAnchor of totalPages">
+                    <div id="page-{{ pageAnchor }}"></div>
+                </div>
                 <div class="panel-heading"><a [routerLink]="['Posts', { page: 1 }]">{{title}}</a></div>
                 <div class="panel-body">
                     <div class="posts">
@@ -12,15 +15,15 @@
                                 <p>{{ formatExcerpt(post.content) }}</p>
                             </li>
                         </ul>
-                        <nav>
+                        <nav style="text-align:center">
                         <ul class="pagination">
                             <li>
                                 <a href="#" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
-                            <li *ngFor="let page of totalPages" (click)="getMorePosts(page)">
-                                <a href="#">{{ page }}</a>
+                            <li *ngFor="let page of totalPages; #index = index" [class.active]="index === 0" (click)="getMorePosts(page)">
+                                <a href="#page-{{page}}" class="page-{{ page }}">{{ page }}</a>
                             </li>
                             <li>
                                 <a href="#" aria-label="Next">

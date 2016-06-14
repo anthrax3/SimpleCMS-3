@@ -54,7 +54,6 @@ export class AppComponent {
         this.postService.getTotalPages()
             .then(totalPages => this.totalPages = totalPages);
         this.default = new _default(http); 
-       
     } 
 
     public formatExcerpt(content: string): string {
@@ -63,9 +62,11 @@ export class AppComponent {
         return content.substring(0, 250) + "...";
     }
 
-    public getMorePosts(pageNumber:number) {
+    public getMorePosts(pageNumber: number) {
         this.postService.getAllPosts(pageNumber)
             .then(posts => this.posts = posts);
+        $("[class^='page-']").parent().removeClass("active");
+        $(".page-" + pageNumber).parent().addClass("active");
     } 
 }
 
