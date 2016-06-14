@@ -7,7 +7,7 @@
                 </div>
                 <div class="panel-heading"><a [routerLink]="['Posts', { page: 1 }]">{{title}}</a></div>
                 <div class="panel-body">
-                    <div class="posts">
+                    <div class="posts-container">
                         <ul class="posts list-unstyled">
                             <li *ngFor="let post of posts">
                                 <h2><a [routerLink]="['Post', { id: post.id }]">{{ post.title}}</a></h2>
@@ -16,22 +16,22 @@
                             </li>
                         </ul>
                         <nav style="text-align:center">
-                        <ul class="pagination">
-                            <li>
-                                <a href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            <li *ngFor="let page of totalPages; #index = index" [class.active]="index === 0" (click)="getMorePosts(page)">
-                                <a href="#page-{{page}}" class="page-{{ page }}">{{ page }}</a>
-                            </li>
-                            <li>
-                                <a href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                        </nav>
+                            <ul class="pagination">
+                                <li>
+                                    <a href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li *ngFor="let page of totalPages; let index = index" [class.active]="index === 0" (click)="getMorePosts(page)">
+                                    <a href="#page-{{page}}" class="page-{{ page }}">{{ page }}</a>
+                                </li>
+                                <li>
+                                    <a href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul> <!-- ./ pagination -->
+                        </nav> <!-- ./ nav-->
                     </div> <!-- /.posts -->
                 </div> <!-- /.panel-body -->
            </div> <!-- /.panel-default -->

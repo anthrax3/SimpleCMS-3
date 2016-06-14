@@ -126,8 +126,9 @@ namespace SimpleCMS.ApiModels
             var validApiKey = db.ApiAccounts.Any(a => a.ApiKey.Equals(ApiKey));
             var referrerForKey = db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(ApiKey)).RequestURL.ToString();
 
-            if ((referrerForKey == "*" || string.Equals(referrerForKey, apiRequest.Url.Authority, StringComparison.CurrentCultureIgnoreCase)) &&
-                    validApiKey)
+            if ((referrerForKey == "*" || 
+                string.Equals(referrerForKey, apiRequest.Url.Authority, StringComparison.CurrentCultureIgnoreCase)) 
+                && validApiKey)
             {
                 boolRtn = true;
             }

@@ -119,7 +119,6 @@ export class PostsService {
                 Logger.LogErrors(response.errors);
                 pagesList = [];
             } // end if response.httpStatusCode > 200
-            console.log(pagesList);
             return pagesList;
         } // end callbackFunction 
 

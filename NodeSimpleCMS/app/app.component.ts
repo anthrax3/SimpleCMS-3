@@ -58,15 +58,21 @@ export class AppComponent {
 
     public formatExcerpt(content: string): string {
         let regex = /(<([^>]+)>)/ig;
-        content = content.replace(regex, "").replace(/\/r\/n/ig, "<br/>")
+        content = content.replace(regex, "").replace(/\\r\\n/ig, "");
         return content.substring(0, 250) + "...";
     }
 
     public getMorePosts(pageNumber: number) {
         this.postService.getAllPosts(pageNumber)
             .then(posts => this.posts = posts);
-        $("[class^='page-']").parent().removeClass("active");
-        $(".page-" + pageNumber).parent().addClass("active");
+        // prevent page jumping 
+        $(".posts").hide();
+        setTimeout(function () {
+            //$(".posts").slideToggle(250);
+            $(".posts").show();
+            $("[class^='page-']").parent().removeClass("active");
+            $(".page-" + pageNumber).parent().addClass("active");
+        }, 250);
     } 
 }
 

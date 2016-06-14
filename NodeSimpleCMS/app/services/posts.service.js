@@ -115,7 +115,6 @@ var PostsService = (function () {
                 logger_1.Logger.LogErrors(response.errors);
                 pagesList = [];
             } // end if response.httpStatusCode > 200
-            console.log(pagesList);
             return pagesList;
         }; // end callbackFunction 
         return this._default.post(getTotalPagesCallback);
