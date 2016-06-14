@@ -87,27 +87,38 @@ var PostsService = (function () {
         this.totalPages = scopedTotalPages; // add updated totalPages back to this
         return this._default.post(callbackFunction);
     };
-    // callback method used for http requests 
-    // @param Response 
-    // @returns 
-    PostsService.prototype.extractData = function (res) {
-        var response = res.json();
-        // extract response data depending on http status code 
-        // errors / messages logged to console
-        if (response.HttpStatusCode === 200) {
-            if (response.Data != null) {
-                response = response.Data;
-            }
-            else {
-                console.log(response.Message);
-                response = {};
-            }
-        }
-        if (response.length > 0 && response.HttpStatusCode > 200) {
-            console.log(response.Errors);
-            response = {};
-        }
-        return response;
+    PostsService.prototype.getTotalPages = function () {
+        this._default.httpDefaults.url = "/api/v1/Posts/GetTotalPages";
+        this._default.httpDefaults.includeKey = true;
+        this._default.httpDefaults.data = JSON.stringify({
+            "PageNumber": 1,
+            "PageSize": 5
+        });
+        var getTotalPagesCallback = function extractDataTotalPages(res) {
+            var response = res.json();
+            var pagesList = [];
+            // extract response data depending on http status code 
+            // errors / messages logged to console
+            if (response.httpStatusCode === 200) {
+                if (response.data != null && response.data["totalPages"] != null) {
+                    var totalPages = response.data["totalPages"];
+                    for (var i = 1; i <= totalPages; i++) {
+                        pagesList.push(i);
+                    }
+                }
+                else {
+                    pagesList = [];
+                }
+                logger_1.Logger.LogMessages(response.messages);
+            } // end response.httpStatusCode === 200 
+            if (response.httpStatusCode > 200) {
+                logger_1.Logger.LogErrors(response.errors);
+                pagesList = [];
+            } // end if response.httpStatusCode > 200
+            console.log(pagesList);
+            return pagesList;
+        }; // end callbackFunction 
+        return this._default.post(getTotalPagesCallback);
     };
     PostsService = __decorate([
         core_1.Injectable(), 

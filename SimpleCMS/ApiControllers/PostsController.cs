@@ -115,12 +115,7 @@ namespace SimpleCMS.Controllers
                 postRequest._IsValid = false;
             }
 
-            if (postRequest._IsValid)
-            {
-                postRequest.ValidateRequest(ApiResponse, ApiRequest, _db);
-            }
-
-            if (postRequest._IsValid)
+            if (postRequest._IsValid && postRequest.ValidateRequest(ApiResponse, ApiRequest, _db))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
@@ -145,6 +140,26 @@ namespace SimpleCMS.Controllers
             else
             {
                 ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
+            }
+
+            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+        }
+
+        // POST /api/v1/Posts/GeTotalPages
+        [HttpPost]
+        [ResponseType(typeof(ApiResponse<object>))]
+        public IHttpActionResult GetTotalPages(AllPostRequestModel postRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                postRequest._IsValid = false;
+            }
+
+            if (postRequest._IsValid && postRequest.ValidateRequest(ApiResponse, ApiRequest, _db))
+            {
+                ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+                ApiResponse.Data = new { totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize) };
             }
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse);

@@ -51,8 +51,10 @@ export class AppComponent {
         this.postService = new PostsService(http);
         this.postService.getAllPosts(1)
             .then(posts => this.posts = posts);
+        this.postService.getTotalPages()
+            .then(totalPages => this.totalPages = totalPages);
         this.default = new _default(http); 
-        this.totalPages = [1];
+       
     } 
 
     public formatExcerpt(content: string): string {

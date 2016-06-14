@@ -92,27 +92,38 @@ export class PostsService {
         return this._default.post<Post[]>(callbackFunction);
     }
 
-    // callback method used for http requests 
-    // @param Response 
-    // @returns 
-    public extractData<T>(res: Response): T {
-        let response = res.json();
+    public getTotalPages(): any {
+        this._default.httpDefaults.url = "/api/v1/Posts/GetTotalPages";
+        this._default.httpDefaults.includeKey = true;
+        this._default.httpDefaults.data = JSON.stringify({
+            "PageNumber": 1,
+            "PageSize": 5
+        });
+        let getTotalPagesCallback = function extractDataTotalPages(res: Response): any {
+            let response = res.json();
+            let pagesList = [];
+            // extract response data depending on http status code 
+            // errors / messages logged to console
+            if (response.httpStatusCode === 200) {
+                if (response.data != null && response.data["totalPages"] != null) {
+                    let totalPages = response.data["totalPages"];
+                    for (var i = 1; i <= totalPages; i++) {
+                        pagesList.push(i);
+                    }
+                } else {
+                    pagesList = [];
+                }
+                Logger.LogMessages(response.messages);
+            } // end response.httpStatusCode === 200 
+            if (response.httpStatusCode > 200) {
+                Logger.LogErrors(response.errors);
+                pagesList = [];
+            } // end if response.httpStatusCode > 200
+            console.log(pagesList);
+            return pagesList;
+        } // end callbackFunction 
 
-        // extract response data depending on http status code 
-        // errors / messages logged to console
-        if (response.HttpStatusCode === 200) {
-            if (response.Data != null) {
-                response = response.Data;
-            } else {
-                console.log(response.Message);
-                response = {}
-            }
-        }
-        if (response.length > 0 && response.HttpStatusCode > 200) {
-            console.log(response.Errors);
-            response = {};
-        }
-
-        return response;
+        return this._default.post<Object>(getTotalPagesCallback);
     }
+    
 }

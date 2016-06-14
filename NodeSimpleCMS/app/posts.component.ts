@@ -16,6 +16,7 @@ export class PostsComponent {
     public title: string;
     public posts: Post[];
     public default: _default;
+    public totalPages: number;
     private _postService: PostsService;
     
     constructor(http: Http, private _routeParams: RouteParams) {
@@ -24,7 +25,9 @@ export class PostsComponent {
         this._postService = new PostsService(http);
         this._postService.getAllPosts(page)
             .then(posts => this.posts = posts);
-        this.default = new _default(http);
+        this._postService.getTotalPages()
+            .then(result => this.totalPages = result.totalPages);
+        this.default = new _default(http);   
     }
 }
 
