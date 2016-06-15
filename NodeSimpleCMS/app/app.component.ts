@@ -65,12 +65,13 @@ export class AppComponent {
     public getMorePosts(pageNumber: number): void {
         $("[class^='page-']").parent().removeClass("active");
         $(".page-" + pageNumber).parent().addClass("active");
+        // save current post in session 
+        this._setSessionlStorage(this.posts); 
         let storagePosts = window.sessionStorage.getItem("page-" + pageNumber);
-        this.setSessionlStorage(this.posts); 
         if (storagePosts != null) {
             this.posts = JSON.parse(storagePosts);
-        } else { // get posts through api if not in storage 
-            // prevent page jumping
+        } else { // get posts through api if not in session 
+            // prevent page jumping after loading 
             $(".posts").hide().height("600px");
             setTimeout(function () {
                 $(".posts").show();
@@ -80,7 +81,7 @@ export class AppComponent {
         }
     } 
 
-    public setSessionlStorage(data: any, key?:string): void {
+    private _setSessionlStorage(data: any, key?:string): void {
         if (key == null) {
             key = window.location.hash.substr(1);
             if (key.length === 0) {
