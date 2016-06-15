@@ -66,7 +66,8 @@ export class AppComponent {
         $("[class^='page-']").parent().removeClass("active");
         $(".page-" + pageNumber).parent().addClass("active");
         // save current post in session 
-        this._setSessionlStorage(this.posts); 
+        this._setSessionStorage(this.posts); 
+        // check session for current post 
         let storagePosts = window.sessionStorage.getItem("page-" + pageNumber);
         if (storagePosts != null) {
             this.posts = JSON.parse(storagePosts);
@@ -75,13 +76,13 @@ export class AppComponent {
             $(".posts").hide().height("600px");
             setTimeout(function () {
                 $(".posts").show();
-            }, 400);
+            }, 450);
             this.postService.getAllPosts(pageNumber)
                 .then(posts => this.posts = posts);
         }
     } 
 
-    private _setSessionlStorage(data: any, key?:string): void {
+    private _setSessionStorage(data: any, key?:string): void {
         if (key == null) {
             key = window.location.hash.substr(1);
             if (key.length === 0) {
