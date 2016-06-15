@@ -62,18 +62,35 @@ export class AppComponent {
         return content.substring(0, 250) + "...";
     }
 
-    public getMorePosts(pageNumber: number) {
-        this.postService.getAllPosts(pageNumber)
-            .then(posts => this.posts = posts);
-        // prevent page jumping 
-        $(".posts").hide().height("600px");
-        setTimeout(function () {
-            //$(".posts").slideToggle(250);
-            $(".posts").show();
-            $("[class^='page-']").parent().removeClass("active");
-            $(".page-" + pageNumber).parent().addClass("active");
-        }, 250);
+    public getMorePosts(pageNumber: number): void {
+        $("[class^='page-']").parent().removeClass("active");
+        $(".page-" + pageNumber).parent().addClass("active");
+        let storagePosts = window.sessionStorage.getItem("page-" + pageNumber);
+        this.setSessionlStorage(this.posts); 
+        if (storagePosts != null) {
+            this.posts = JSON.parse(storagePosts);
+        } else { // get posts through api if not in storage 
+            // prevent page jumping
+            $(".posts").hide().height("600px");
+            setTimeout(function () {
+                $(".posts").show();
+            }, 400);
+            this.postService.getAllPosts(pageNumber)
+                .then(posts => this.posts = posts);
+        }
     } 
+
+    public setSessionlStorage(data: any, key?:string): void {
+        if (key == null) {
+            key = window.location.hash.substr(1);
+            if (key.length === 0) {
+                key = "page-1";
+            }
+        } // end if key == null
+        if (data != undefined && key.length > 0) {
+            window.sessionStorage.setItem(key, JSON.stringify(data));
+        }
+    }
 }
 
 
