@@ -7,6 +7,7 @@ using Microsoft.Owin.Security;
 using SimpleCMS.Models;
 using SimpleCMS.DAL;
 using System.Security.Claims;
+using System.Linq;
 
 namespace SimpleCMS
 {
@@ -14,9 +15,22 @@ namespace SimpleCMS
 
     public class ApplicationUserManager : UserManager<ApplicationUser>
     {
+        private static ApplicationContext _db = new ApplicationContext();
+
         public ApplicationUserManager(IUserStore<ApplicationUser> store)
             : base(store)
         {
+        }
+
+        public static ApplicationUser GetUser(string username)
+        {
+            var user = _db.Users.SingleOrDefault(u => u.UserName == username);
+            if (user != null)
+            {
+                return user as ApplicationUser;
+            }
+
+            return null;
         }
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)

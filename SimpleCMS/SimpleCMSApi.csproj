@@ -190,6 +190,8 @@
     <Compile Include="ApiClasses\ModelStateAssistant.cs" />
     <Compile Include="ApiClasses\Swashbuckler\ApplySchemaVendorExtensions.cs" />
     <Compile Include="ApiClasses\Swashbuckler\HandleModelBinding.cs" />
+    <Compile Include="ApiControllers\PublicAccountController.cs" />
+    <Compile Include="ApiModels\IRequestModels.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />

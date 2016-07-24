@@ -22,9 +22,9 @@ namespace SimpleCMS.ApiClasses
 
         public HttpRequest ApiRequest { get; set; }
         
-        protected ApplicationContext _db;
+        internal ApplicationContext _db;
 
-        protected UserManager<ApplicationUser> UserManager { get; set; }
+        internal UserManager<ApplicationUser> UserManager { get; set; }
 
         public BaseApiController()
         {

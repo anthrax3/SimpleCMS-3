@@ -24,22 +24,17 @@ namespace SimpleCMS.Controllers
                 postModel._IsValid = false;
             }
 
-            if (postModel._IsValid)
+            if (postModel._IsValid && postModel.ValidateRequest(this))
             {
-                postModel.ValidateApiKey(ApiResponse, ApiRequest, _db);
+                // valid ApiRequest. create post
+                postModel.Post.Created = DateTime.Now;
+                postModel.Post.Updated = postModel.Post.Created;
+                _db.Posts.Add(postModel.Post);
+                _db.SaveChanges();
+                ApiResponse.HttpStatusCode = HttpStatusCode.Created;
+                ApiResponse.Data = null;
+
             }
-
-            // return early if bad request 
-            if (!postModel._IsValid)
-                return Content(ApiResponse.HttpStatusCode, ApiResponse);
-
-            // valid ApiRequest. create post
-            postModel.Post.Created = DateTime.Now;
-            postModel.Post.Updated = postModel.Post.Created;
-            _db.Posts.Add(postModel.Post);
-            _db.SaveChanges();
-            ApiResponse.HttpStatusCode = HttpStatusCode.Created;
-            ApiResponse.Data = null;
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse);
         }
@@ -54,24 +49,25 @@ namespace SimpleCMS.Controllers
                 ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
                 postModel._IsValid = false;
             }
-            // return early if bad request 
-            if (!postModel._IsValid)
-                return Content(ApiResponse.HttpStatusCode, ApiResponse);
 
-            // valid ApiRequest. update post
-            var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
-            postToUpdate.ID = postModel.Post.ID;
-            postToUpdate.Title = postModel.Post.Title;
-            postToUpdate.Content = postModel.Post.Content;
-            postToUpdate.Updated = DateTime.Now;
-            postToUpdate.Attachment = postModel.Post.Attachment;
-            if (postToUpdate.Attachment == true && !string.IsNullOrEmpty(postModel.Post.AttachmentPath))
+            if (!postModel._IsValid && postModel.ValidateRequest(this))
             {
-                postToUpdate.AttachmentPath = postModel.Post.AttachmentPath;
+                // valid ApiRequest. update post
+                var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
+                postToUpdate.ID = postModel.Post.ID;
+                postToUpdate.Title = postModel.Post.Title;
+                postToUpdate.Content = postModel.Post.Content;
+                postToUpdate.Updated = DateTime.Now;
+                postToUpdate.Attachment = postModel.Post.Attachment;
+                if (postToUpdate.Attachment == true && !string.IsNullOrEmpty(postModel.Post.AttachmentPath))
+                {
+                    postToUpdate.AttachmentPath = postModel.Post.AttachmentPath;
+                }
+                _db.SaveChanges();
+                ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+                ApiResponse.Data = null;
+
             }
-            _db.SaveChanges();
-            ApiResponse.HttpStatusCode = HttpStatusCode.OK;
-            ApiResponse.Data = null;
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse);
         }
@@ -115,7 +111,7 @@ namespace SimpleCMS.Controllers
                 postRequest._IsValid = false;
             }
 
-            if (postRequest._IsValid && postRequest.ValidateRequest(ApiResponse, ApiRequest, _db))
+            if (postRequest._IsValid && postRequest.ValidateRequest(this))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
@@ -156,7 +152,7 @@ namespace SimpleCMS.Controllers
                 postRequest._IsValid = false;
             }
 
-            if (postRequest._IsValid && postRequest.ValidateRequest(ApiResponse, ApiRequest, _db))
+            if (postRequest._IsValid && postRequest.ValidateRequest(this))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 ApiResponse.Data = new { totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize) };
@@ -168,7 +164,7 @@ namespace SimpleCMS.Controllers
         // POST /api/v1/Posts/ByUser
         [HttpPost]
         [ResponseType(typeof (ApiResponse<IEnumerable<Posts>>))]
-        public IHttpActionResult ByUser(ByUserRequestModel userModel)
+        public IHttpActionResult ByUser(UserPostsRequestModel userModel)
         {
             if (!ModelState.IsValid)
             {
@@ -176,18 +172,12 @@ namespace SimpleCMS.Controllers
                 userModel._IsValid = false;
             }
 
-            if (userModel._IsValid)
+            if (userModel._IsValid && userModel.ValidateRequest(this))
             {
-                userModel.ValidateRequest(ApiResponse, ApiRequest, _db); 
+                ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+                ApiResponse.Data = _db.Posts.Where(p =>
+                    p.ApplicationUser.UserName == userModel.Username).ToList();
             }
-            // return early if bad request
-            if (!userModel._IsValid)
-                return Content(ApiResponse.HttpStatusCode, ApiResponse);
-            
-            // valid ApiRequest
-            ApiResponse.HttpStatusCode = HttpStatusCode.OK;
-            ApiResponse.Data = _db.Posts.Where(p =>
-                p.ApplicationUser.UserName == userModel.Username).ToList();
 
             return Content(ApiResponse.HttpStatusCode, ApiResponse); 
         }
