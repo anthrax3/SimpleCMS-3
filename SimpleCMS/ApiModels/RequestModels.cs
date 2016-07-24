@@ -1,12 +1,10 @@
 ﻿using SimpleCMS.AppClasses;
-using SimpleCMS.DAL;
 using SimpleCMS.Models;
 using SimpleCMS.ApiClasses;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Http.ModelBinding;
 
 namespace SimpleCMS.ApiModels
@@ -113,22 +111,31 @@ namespace SimpleCMS.ApiModels
     [ModelBinder(typeof(ApiModelBinderProvider<UserPostsRequestModel>))]
     public class UserPostsRequestModel : RequestModel
     {
+        private string _username = null; 
+
         [Required]
-        public string Username { get; set; }
+        public string Username
+        {
+            get { return this._username; }
+
+            set
+            {
+                this._username = value;
+                if (this._username != null)
+                {
+                    this.UserRequest = new UserRequestModel(this._username); 
+                }
+            }
+        }
 
         internal IUserRequestModel UserRequest { get; set; }
-
-        public UserPostsRequestModel()
-        {
-            this.UserRequest = new UserRequestModel(this.Username);
-        }
 
         internal override bool ValidateRequest(BaseApiController controller)
         {
             var boolRtn = base.ValidateRequest(controller);
             if (boolRtn)
             {
-                boolRtn = this.UserRequest.Validate(controller);
+                boolRtn = UserRequest.Validate(controller);
             }
             return boolRtn;
         }
