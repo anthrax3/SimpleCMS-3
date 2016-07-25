@@ -13,9 +13,5 @@ namespace SimpleCMS.ApiModels
         string Username { get; set; }
 
         Guid UserID { get; set; }
-
-        string Portal { get; set; }
-
-        bool Validate(BaseApiController controller);
     }
 }

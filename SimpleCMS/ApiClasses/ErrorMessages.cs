@@ -14,8 +14,10 @@ namespace SimpleCMS.ApiClasses
         /// </summary>
         public static Func<string, string> UsernameNotFound = 
             (username) => $"User {username} does not exist.";
-        
-
+        /// <summary>
+        /// Username or UserId required. Both cannot be null.
+        /// </summary>
+        public static string UserNameAndUserIdEmpty = "Username or UserId required. Both cannot be null.";
         /// <summary>
         /// Post with id {0} does not exist.
         /// </summary>

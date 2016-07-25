@@ -6,10 +6,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Web.Http.ModelBinding;
+using System.Collections.Generic;
 
 namespace SimpleCMS.ApiModels
 {
     #region BaseRequestModel
+    /// <summary>
+    /// Base Reqeust Model that contains ApiKey, _IsValid, and a virtual Validate
+    /// Request that validates ModelState, apiKey, and referrer.
+    /// </summary>
     public class RequestModel : IRequestModel
     {
         [Required]
@@ -23,17 +28,25 @@ namespace SimpleCMS.ApiModels
         }
 
         /// <summary>
-        /// Validates an apiKey based on the referrer URL 
-        /// </summary
-        internal virtual bool ValidateRequest(BaseApiController controller)
+        /// Validates the ModelState, apikey and referrer url and adds errors / messages 
+        /// to controller.ApiResponse as needed 
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="modelState"></param>
+        /// <returns></returns>
+        internal virtual bool ValidateRequest(BaseApiController controller, ModelStateDictionary modelState)
         {
             var boolRtn = false;
-            var validApiKey = controller._db.ApiAccounts.Any(a => a.ApiKey.Equals(ApiKey));
+            if (!modelState.IsValid)
+            {
+                controller.ApiResponse.AddRangeError(modelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
+                _IsValid = false;
+            }
             var referrerForKey = controller._db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(ApiKey)).RequestURL.ToString();
 
-            if ((referrerForKey == "*" ||
-                string.Equals(referrerForKey, controller.ApiRequest.Url.Authority, StringComparison.CurrentCultureIgnoreCase))
-                && validApiKey)
+            if (_IsValid && 
+                ((referrerForKey == "*" ||
+                string.Equals(referrerForKey, controller.ApiRequest.Url.Authority, StringComparison.CurrentCultureIgnoreCase))))
             {
                 boolRtn = true;
             }
@@ -44,46 +57,46 @@ namespace SimpleCMS.ApiModels
     #endregion
 
     #region UserRequestModels
-    public class UserRequestModel : IUserRequestModel
+    /// <summary>
+    /// UserRequestModel extends RequestModel and contains Username, UserID. Username or 
+    /// UserId are required and are validate with ValidateResult (along with apikey and
+    /// referer); 
+    /// </summary>
+    [ModelBinder(typeof (ApiModelBinderProvider<UserRequestModel>))]
+    public class UserRequestModel : RequestModel, IUserRequestModel, IValidatableObject
     {
         public string Username { get; set; }
 
         public Guid UserID { get; set; }
 
-        public string Portal { get; set; }
-
-        public UserRequestModel()
+        /// <summary>
+        /// Validates that Username or UserId are set 
+        /// </summary>
+        /// <param name="validationContext"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            this.Username = string.Empty;
-            this.Portal = "any";
-        }
-
-        public UserRequestModel(string username, string portal = "any")
-        {
-            this.Username = username;
-            this.Portal = "any";
-            var user = ApplicationUserManager.GetUser(username);
-            if (user != null)
+            if (string.IsNullOrEmpty(Username) || UserID.Equals(Guid.Empty))
             {
-                this.UserID = Guid.Parse(user.Id);
+                yield return new ValidationResult(ErrorMessages.UserNameAndUserIdEmpty);
             }
         }
 
-        public UserRequestModel(string username, Guid userID, string portal = "any")
+        /// <summary>
+        /// Validates ModelState, username, apikey, and referrer and adds errors / messages 
+        /// to controller.ApiResponse as needed 
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="modelState"></param>
+        /// <returns></returns>
+        internal override bool ValidateRequest(BaseApiController controller, ModelStateDictionary modelState)
         {
-            this.Username = username;
-            this.UserID = userID;
-            this.Portal = portal;
-        }
-
-        public bool Validate(BaseApiController controller)
-        {
-            var boolRtn = true;
-            // only validate the username if the property is set 
-            if (!string.IsNullOrEmpty(Username))
+            var boolRtn = base.ValidateRequest(controller, modelState);
+            // only validate the username if base request (apikey and referrer) are valid 
+            if (boolRtn)
             {
                 // make sure username exists 
-                if (!controller._db.Users.Any(u => u.UserName == Username))
+                if (string.IsNullOrEmpty(Username) || !controller._db.Users.Any(u => u.UserName == Username))
                 {
                     controller.ApiResponse.AddError(ErrorMessages.UsernameNotFound(Username), HttpStatusCode.OK);
                     boolRtn = false;
@@ -95,6 +108,9 @@ namespace SimpleCMS.ApiModels
 
     }
 
+    /// <summary>
+    /// Used for creating a user (contains Username, Email, and Password)
+    /// </summary>
     [ModelBinder(typeof(ApiModelBinderProvider<NewUserRequestModel>))]
     public class NewUserRequestModel : RequestModel
     {
@@ -107,39 +123,6 @@ namespace SimpleCMS.ApiModels
         [Required]
         public string Password { get; set; }
     }
-
-    [ModelBinder(typeof(ApiModelBinderProvider<UserPostsRequestModel>))]
-    public class UserPostsRequestModel : RequestModel
-    {
-        private string _username = null; 
-
-        [Required]
-        public string Username
-        {
-            get { return this._username; }
-
-            set
-            {
-                this._username = value;
-                if (this._username != null)
-                {
-                    this.UserRequest = new UserRequestModel(this._username); 
-                }
-            }
-        }
-
-        internal IUserRequestModel UserRequest { get; set; }
-
-        internal override bool ValidateRequest(BaseApiController controller)
-        {
-            var boolRtn = base.ValidateRequest(controller);
-            if (boolRtn)
-            {
-                boolRtn = UserRequest.Validate(controller);
-            }
-            return boolRtn;
-        }
-    }
     #endregion
 
     #region PostsRequestModels
@@ -150,6 +133,10 @@ namespace SimpleCMS.ApiModels
         public Posts Post { get; set; }
     }
 
+    /// <summary>
+    /// Request model used for returning all posts. Has optional parameters of 
+    /// PageNumber and PageSize used for pagination.
+    /// </summary>
     [ModelBinder(typeof(ApiModelBinderProvider<AllPostRequestModel>))]
     public class AllPostRequestModel : RequestModel
     {
@@ -158,32 +145,34 @@ namespace SimpleCMS.ApiModels
         public int? PageSize { get; set; }
 
         /// <summary>
-        /// 
+        /// Validates ModelState, apikey, referrer, pageNumber, and pageSize and adds errors / messages 
+        /// to controller.ApiResponse as needed 
         /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="modelState"></param>
         /// <returns></returns>
-        internal override bool ValidateRequest(BaseApiController controller)
+        internal override bool ValidateRequest(BaseApiController controller, ModelStateDictionary modelState)
         {
-            var boolRtn = true;
-            // set defaults 
-            if (PageNumber == null)
+            var boolRtn = base.ValidateRequest(controller, modelState); ;
+           
+            // only continue if base request (ModelState, apikey, referrer) is valid 
+            if (boolRtn)
             {
-                PageNumber = 1;
-            }
-            if (PageSize == null)
-            {
-                PageSize = 5;
-            }
-            boolRtn = base.ValidateRequest(controller);
-            // make sure nothing set to zero (prevent divide by zero errors down the line) 
-            if (PageNumber == 0)
-            {
-                controller.ApiResponse.AddError("PageNumber cannot be zero", HttpStatusCode.BadRequest);
-                boolRtn = false;
-            }
-            if (PageSize == 0)
-            {
-                controller.ApiResponse.AddError("PageSize cannot be zero", HttpStatusCode.BadRequest);
-                boolRtn = false;
+                // set defaults 
+                PageNumber = PageNumber == null ? 1 : PageNumber;
+                PageSize = PageSize == null ? 5 : PageSize;
+                
+                // make sure nothing set to zero (prevent divide by zero errors down the line) 
+                if (PageNumber == 0)
+                {
+                    controller.ApiResponse.AddError("PageNumber cannot be zero", HttpStatusCode.BadRequest);
+                    boolRtn = false;
+                }
+                if (PageSize == 0)
+                {
+                    controller.ApiResponse.AddError("PageSize cannot be zero", HttpStatusCode.BadRequest);
+                    boolRtn = false;
+                }
             }
             _IsValid = boolRtn;
             return boolRtn;

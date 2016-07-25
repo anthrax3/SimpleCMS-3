@@ -45,24 +45,15 @@ namespace SimpleCMS.ApiClasses
             _db = db;
             UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(_db));
         }
-
+        
         /// <summary>
-        /// Validates an apiKey based on the referrer URL 
+        /// Returns Content(ApiResponse.HttpStatusCode, ApiResponse). 
         /// </summary>
-        /// <param name="apiKey"></param>
+        /// <param name="apiResponse"></param>
         /// <returns></returns>
-        protected bool ValidateApiKey(string apiKey)
+        public IHttpActionResult ResponseContent(ApiResponse<object> apiResponse)
         {
-            var boolRtn = false;
-            var validApiKey = _db.ApiAccounts.Any(a => a.ApiKey.Equals(apiKey));
-            var referrerForKey = _db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(apiKey)).RequestURL.ToString();
-
-            if ((referrerForKey == "*" || string.Equals(referrerForKey, ApiRequest.Url.Authority, StringComparison.CurrentCultureIgnoreCase)) &&
-                    validApiKey)
-            {
-                boolRtn = true;
-            }
-            return boolRtn;
+            return Content(apiResponse.HttpStatusCode, apiResponse);
         }
     }
 }

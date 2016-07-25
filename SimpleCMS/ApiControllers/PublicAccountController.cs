@@ -13,13 +13,7 @@ namespace SimpleCMS.ApiControllers
         [HttpPost]
         public async Task<IHttpActionResult> Create(NewUserRequestModel userRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                userRequest._IsValid = false;
-            }
-
-            if (userRequest._IsValid && userRequest.ValidateRequest(this))
+            if (userRequest.ValidateRequest(this, ModelState))
             {
                 var user = new ApplicationUser { UserName = userRequest.Username, Email = userRequest.Email };
                 var result = await UserManager.CreateAsync(user, userRequest.Password);
@@ -34,7 +28,7 @@ namespace SimpleCMS.ApiControllers
                 }
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            return ResponseContent(ApiResponse);
         }
     }
 }

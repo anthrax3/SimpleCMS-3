@@ -18,13 +18,7 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof (ApiResponse<object>))]
         public IHttpActionResult Create(PostRequestModel postModel)
         {
-            if(!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                postModel._IsValid = false;
-            }
-
-            if (postModel._IsValid && postModel.ValidateRequest(this))
+            if (postModel.ValidateRequest(this, ModelState))
             {
                 // valid ApiRequest. create post
                 postModel.Post.Created = DateTime.Now;
@@ -36,7 +30,7 @@ namespace SimpleCMS.Controllers
 
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            return ResponseContent(ApiResponse);
         }
 
         // POST api/v1/Posts/Update
@@ -44,13 +38,7 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof(ApiResponse<object>))]
         public IHttpActionResult Update(PostRequestModel postModel)
         {
-            if (!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                postModel._IsValid = false;
-            }
-
-            if (!postModel._IsValid && postModel.ValidateRequest(this))
+            if (postModel.ValidateRequest(this, ModelState))
             {
                 // valid ApiRequest. update post
                 var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
@@ -69,36 +57,36 @@ namespace SimpleCMS.Controllers
 
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            return ResponseContent(ApiResponse);
         }
 
         // POST api/v1/Posts/ByID/{id}
-        [HttpPost]
-        [ResponseType(typeof (ApiResponse<Posts>))]
-        public IHttpActionResult Get([FromUri]int? id, [FromBody]string apiKey)
-        {
-            var isValid = true;
-            if (!ValidateApiKey(apiKey))
-            {
-                ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
-                isValid = false;
-            }
+        //[HttpPost]
+        //[ResponseType(typeof (ApiResponse<Posts>))]
+        //public IHttpActionResult Get([FromUri]int? id, [FromBody]string apiKey)
+        //{
+        //    var isValid = true;
+        //    if (!ValidateApiKey(apiKey))
+        //    {
+        //        ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
+        //        isValid = false;
+        //    }
             
-            // return early if invalid api key
-            if (isValid && id == null)
-                return Content(ApiResponse.HttpStatusCode, ApiResponse);
+        //    // return early if invalid api key
+        //    if (isValid && id == null)
+        //        return ResponseContent(ApiResponse)
 
-            // return early if invalid post id 
-            if (isValid && id < 0)
-            {
-                ApiResponse.AddError("Invalid id", HttpStatusCode.BadRequest);
-                return Content(ApiResponse.HttpStatusCode, ApiResponse);
-            }
+        //    // return early if invalid post id 
+        //    if (isValid && id < 0)
+        //    {
+        //        ApiResponse.AddError("Invalid id", HttpStatusCode.BadRequest);
+        //        return ResponseContent(ApiResponse)
+        //    }
 
-            ApiResponse.Data = _db.Posts.FirstOrDefault(p => p.ID == id);
-            
-            return Content(ApiResponse.HttpStatusCode, ApiResponse); 
-        }
+        //    ApiResponse.Data = _db.Posts.FirstOrDefault(p => p.ID == id);
+
+        //    return ResponseContent(ApiResponse);
+        //}
         
         // POST /api/v1/Posts/AllPosts
         [HttpPost]
@@ -111,7 +99,7 @@ namespace SimpleCMS.Controllers
                 postRequest._IsValid = false;
             }
 
-            if (postRequest._IsValid && postRequest.ValidateRequest(this))
+            if (postRequest._IsValid && postRequest.ValidateRequest(this, ModelState))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
@@ -138,7 +126,7 @@ namespace SimpleCMS.Controllers
                 ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            return ResponseContent(ApiResponse);
         }
 
         // POST /api/v1/Posts/GeTotalPages
@@ -146,40 +134,28 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof(ApiResponse<object>))]
         public IHttpActionResult GetTotalPages(AllPostRequestModel postRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                postRequest._IsValid = false;
-            }
-
-            if (postRequest._IsValid && postRequest.ValidateRequest(this))
+            if (postRequest.ValidateRequest(this, ModelState))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 ApiResponse.Data = new { totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize) };
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse);
+            return ResponseContent(ApiResponse);
         }
 
         // POST /api/v1/Posts/ByUser
         [HttpPost]
         [ResponseType(typeof (ApiResponse<IEnumerable<Posts>>))]
-        public IHttpActionResult ByUser(UserPostsRequestModel userModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                userModel._IsValid = false;
-            }
-
-            if (userModel._IsValid && userModel.ValidateRequest(this))
+        public IHttpActionResult ByUser(UserRequestModel userModel)
+        { 
+            if (userModel.ValidateRequest(this, ModelState))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 ApiResponse.Data = _db.Posts.Where(p =>
                     p.ApplicationUser.UserName == userModel.Username).ToList();
             }
 
-            return Content(ApiResponse.HttpStatusCode, ApiResponse); 
+            return ResponseContent(ApiResponse);
         }
     }
 }
