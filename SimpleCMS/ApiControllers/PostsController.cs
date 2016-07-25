@@ -27,8 +27,7 @@ namespace SimpleCMS.Controllers
                 _db.SaveChanges();
                 ApiResponse.HttpStatusCode = HttpStatusCode.Created;
                 ApiResponse.Data = null;
-
-            }
+            } 
 
             return ResponseContent(ApiResponse);
         }
@@ -41,7 +40,7 @@ namespace SimpleCMS.Controllers
             if (postModel.ValidateRequest(this, ModelState))
             {
                 // valid ApiRequest. update post
-                var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID);
+                var postToUpdate = _db.Posts.First(p => p.ID == postModel.Post.ID); // postModel.ValidateRequest validates Post.ID has post
                 postToUpdate.ID = postModel.Post.ID;
                 postToUpdate.Title = postModel.Post.Title;
                 postToUpdate.Content = postModel.Post.Content;
@@ -54,7 +53,6 @@ namespace SimpleCMS.Controllers
                 _db.SaveChanges();
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 ApiResponse.Data = null;
-
             }
 
             return ResponseContent(ApiResponse);

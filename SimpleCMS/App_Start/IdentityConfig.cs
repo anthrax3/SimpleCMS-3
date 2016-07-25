@@ -27,7 +27,7 @@ namespace SimpleCMS
             var user = _db.Users.SingleOrDefault(u => u.UserName == username);
             if (user != null)
             {
-                return user as ApplicationUser;
+                return user;
             }
 
             return null;

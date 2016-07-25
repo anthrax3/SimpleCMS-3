@@ -14,15 +14,12 @@ namespace SimpleCMS.ApiClasses
         public static IEnumerable<string> GetModelStateErrors(this ModelStateDictionary modelState)
         {
             var result = new List<string>();
-            var i = 0;
             foreach (var error in modelState.Select(e => e.Value.Errors))
             {
                 if (error == null) continue;
-                var firstOrDefault = error.Select(e => e.ErrorMessage)
-                    .FirstOrDefault();
-                if (firstOrDefault != null)
-                    result.Add(firstOrDefault);
-                i++;
+                var firstOrDefault = error.Select(e => e.ErrorMessage).FirstOrDefault();
+                if (firstOrDefault == null) continue;
+                result.Add(firstOrDefault);
             }
             return result;
         }

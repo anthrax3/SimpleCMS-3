@@ -42,7 +42,12 @@ namespace SimpleCMS.ApiModels
                 controller.ApiResponse.AddRangeError(modelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
                 _IsValid = false;
             }
-            var referrerForKey = controller._db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(ApiKey)).RequestURL.ToString();
+            var apiAccount = controller._db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(ApiKey));
+            var referrerForKey = string.Empty;
+            if (apiAccount != null)
+            {
+                referrerForKey =  apiAccount.RequestURL.ToString(); 
+            }
 
             if (_IsValid && 
                 ((referrerForKey == "*" ||
@@ -111,8 +116,8 @@ namespace SimpleCMS.ApiModels
     /// <summary>
     /// Used for creating a user (contains Username, Email, and Password)
     /// </summary>
-    [ModelBinder(typeof(ApiModelBinderProvider<NewUserRequestModel>))]
-    public class NewUserRequestModel : RequestModel
+    [ModelBinder(typeof(ApiModelBinderProvider<CreateUserRequestModel>))]
+    public class CreateUserRequestModel : RequestModel
     {
         [Required]
         public string Username { get; set; }
@@ -131,6 +136,23 @@ namespace SimpleCMS.ApiModels
     {
         [Required]
         public Posts Post { get; set; }
+
+        internal override bool ValidateRequest(BaseApiController controller, ModelStateDictionary modelState)
+        {
+            var boolRtn = base.ValidateRequest(controller, modelState);
+
+            if (boolRtn)
+            {
+                if (controller._db.Posts.All(p => p.ID != Post.ID))
+                {
+                    controller.ApiResponse.Messages.Add(ErrorMessages.PostNotFound(Post.ID));
+                    controller.ApiResponse.HttpStatusCode = HttpStatusCode.OK;
+                    boolRtn = false;
+                }
+            }
+
+            return boolRtn;
+        }
     }
 
     /// <summary>

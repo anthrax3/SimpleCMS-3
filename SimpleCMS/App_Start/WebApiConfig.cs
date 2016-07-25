@@ -18,10 +18,11 @@ namespace SimpleCMS
             config.SuppressDefaultHostAuthentication();
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
 
-            // Web API routes
+            // Enable API to except requests from any referrer
             config.MapHttpAttributeRoutes();
             var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);
+            // Web API routes
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/v1/{controller}/{action}/{id}/{param}",

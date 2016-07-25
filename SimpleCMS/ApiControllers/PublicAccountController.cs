@@ -11,7 +11,7 @@ namespace SimpleCMS.ApiControllers
     public class PublicAccountController : BaseApiController
     {
         [HttpPost]
-        public async Task<IHttpActionResult> Create(NewUserRequestModel userRequest)
+        public async Task<IHttpActionResult> Create(CreateUserRequestModel userRequest)
         {
             if (userRequest.ValidateRequest(this, ModelState))
             {

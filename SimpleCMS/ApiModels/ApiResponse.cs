@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using System.Web;
+using System.Web.Http;
 
 namespace SimpleCMS.ApiModels
 {
