@@ -91,13 +91,7 @@ namespace SimpleCMS.Controllers
         [ResponseType(typeof(ApiResponse<IEnumerable<Posts>>))]
         public IHttpActionResult AllPosts(AllPostRequestModel postRequest)
         {
-            if(!ModelState.IsValid)
-            {
-                ApiResponse.AddRangeError(ModelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                postRequest._IsValid = false;
-            }
-
-            if (postRequest._IsValid && postRequest.ValidateRequest(this, ModelState))
+            if (postRequest.ValidateRequest(this, ModelState))
             {
                 ApiResponse.HttpStatusCode = HttpStatusCode.OK;
                 var totalPages = Math.Ceiling((double)_db.Posts.Count() / (int)postRequest.PageSize);
