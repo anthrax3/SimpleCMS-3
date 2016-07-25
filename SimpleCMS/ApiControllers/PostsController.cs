@@ -113,10 +113,6 @@ namespace SimpleCMS.Controllers
 
                 ApiResponse.Data = dataList;
             }
-            else
-            {
-                ApiResponse.AddError(ErrorMessages.InvalidApiKey, HttpStatusCode.Unauthorized);
-            }
 
             return ResponseContent(ApiResponse);
         }
