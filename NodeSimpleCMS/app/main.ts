@@ -1,8 +1,8 @@
 // Imports for loading & configuring the in-memory web api
 import { provide }    from '@angular/core';
-
-import { RouteConfig, RouteParams, Router,
-    ROUTER_DIRECTIVES, ROUTER_PROVIDERS }        from '@angular/router-deprecated';
+import { AppComponent } from './app.component.ts';
+import { APP_ROUTER_PROVIDERS }  from './app.routes.ts';
+import { HTTP_PROVIDERS } from '@angular/http';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
@@ -10,15 +10,18 @@ import 'rxjs/add/operator/toPromise';
 import { enableProdMode } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
+// Add these symbols to override the `LocationStrategy`
+import {
+    LocationStrategy,
+    HashLocationStrategy
+} from '@angular/common';
+
 // The usual bootstrapping imports
 import { bootstrap }      from '@angular/platform-browser-dynamic';
-import { HTTP_PROVIDERS } from '@angular/http';
-
-import { AppComponent }   from './app.component';
 
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
-    ROUTER_DIRECTIVES,
-    ROUTER_PROVIDERS
+    APP_ROUTER_PROVIDERS,
+    { provide: LocationStrategy, useClass: HashLocationStrategy } // .../#/post
+]).catch(err => console.error(err));
 
-]);

@@ -40,7 +40,7 @@ namespace SimpleCMS.ApiModels
             if (!modelState.IsValid)
             {
                 controller.ApiResponse.AddRangeError(modelState.GetModelStateErrors(), HttpStatusCode.BadRequest);
-                _IsValid = false;
+                boolRtn = false;
             }
             var apiAccount = controller._db.ApiAccounts.FirstOrDefault(a => a.ApiKey.Equals(ApiKey));
             var referrerForKey = string.Empty;

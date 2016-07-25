@@ -20,7 +20,7 @@
     <OutputPath>.</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
     <NodejsPort>1337</NodejsPort>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
@@ -37,6 +37,7 @@
     <Content Include=".gitignore" />
     <Content Include="app\app.component.html" />
     <Content Include="app\post.component.html" />
+    <Content Include="img\loading.gif" />
     <Content Include="index.html" />
     <Content Include="styles.css" />
     <Content Include="tsconfig.json" />
@@ -45,6 +46,7 @@
     <Content Include="typings\globals\jasmine\typings.json" />
     <Content Include="typings\globals\node\typings.json" />
     <TypeScriptCompile Include="app\app.component.ts" />
+    <TypeScriptCompile Include="app\app.routes.ts" />
     <TypeScriptCompile Include="app\classes\http.defaults.ts" />
     <TypeScriptCompile Include="app\classes\error.messages.ts" />
     <TypeScriptCompile Include="app\classes\logger.ts" />
@@ -73,6 +75,7 @@
     <Folder Include="app\classes\" />
     <Folder Include="app\services\" />
     <Folder Include="javascript\" />
+    <Folder Include="img\" />
     <Folder Include="typings\" />
     <Folder Include="typings\globals\" />
     <Folder Include="typings\globals\core-js\" />
@@ -80,8 +83,10 @@
     <Folder Include="typings\globals\node\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="app\app.component.ts.js" />
     <Compile Include="app\app.component.js" />
     <Compile Include="app\classes\post.js" />
+    <Compile Include="app\services\posts.service.ts.js" />
     <Compile Include="app\services\posts.service.js" />
     <Compile Include="app\classes\_default.js" />
     <Compile Include="app\dashboard.component.js" />

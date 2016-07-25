@@ -1,43 +1,14 @@
 import { Component }          from '@angular/core';
-import { RouteConfig, RouteParams, Router,
-    ROUTER_DIRECTIVES, ROUTER_PROVIDERS }        from '@angular/router-deprecated';
-import { DashboardComponent } from './dashboard.component';
+import { ROUTER_DIRECTIVES }  from '@angular/router';
 import { Post }               from  './classes/post';
-import { PostsService }       from './services/posts.service';
-import { PostComponent }      from './post.component.ts';
-import { PostsComponent }     from './posts.component.ts';
+import { PostsService }       from './services/posts.service.ts';
 import { Http }               from '@angular/http';
 import { _default }           from './classes/_default'; 
 
 @Component({
     selector: 'simple-cms',
-    templateUrl: 'app/app.component.html',
-    directives: [ROUTER_DIRECTIVES],
-    providers: [
-        ROUTER_PROVIDERS,
-        PostsService,
-        PostsComponent,
-        PostComponent,
-        DashboardComponent
-        ]
+    templateUrl: 'app/app.component.html'
 })
-@RouteConfig([
-    {
-        path: '/dashboard',
-        as: 'Dashboard',
-        component: DashboardComponent
-    },
-    {
-        path: '/posts/:page',
-        as: 'Posts',
-        component: PostsComponent
-    },
-    {
-        path: '/post/:id',
-        as: 'Post',
-        component: PostComponent
-    }
-])
 export class AppComponent {
     public title: string;
     public posts: Post[];
@@ -46,10 +17,20 @@ export class AppComponent {
     public default: _default; 
     private postService: PostsService;
 
-    constructor(http: Http,  private _router: Router) {
+    constructor(http: Http) {
         this.title = "Posts";
         this.postService = new PostsService(http);
-        this.postService.getAllPosts(1)
+        let pageHash = window.location.hash.substr(1);
+        let pageNumber: number = 1;
+        if (pageHash.length > 0) {
+            pageNumber = !isNaN(parseInt(pageHash.substr(pageHash.length - 1), 10))
+                ? parseInt(pageHash.substr(pageHash.length - 1), 10)
+                : pageNumber;
+            if (pageNumber > 1) {
+                this.updatePaginationSyles(pageNumber);
+            }
+        }
+        this.postService.getAllPosts(pageNumber)
             .then(posts => this.posts = posts);
         this.postService.getTotalPages()
             .then(totalPages => this.totalPages = totalPages);
@@ -57,30 +38,33 @@ export class AppComponent {
     } 
 
     public formatExcerpt(content: string): string {
-        let regex = /(<([^>]+)>)/ig;
-        content = content.replace(regex, "").replace(/\\r\\n/ig, "");
+        content = content.replace(/(<([^>]+)>)/ig, "").replace(/\\r\\n/ig, "");
         return content.substring(0, 250) + "...";
     }
 
     public getMorePosts(pageNumber: number): void {
-        $("[class^='page-']").parent().removeClass("active");
-        $(".page-" + pageNumber).parent().addClass("active");
-        // save current post in session 
+        this.updatePaginationSyles(pageNumber);
+        // save current posts in session 
         this._setSessionStorage(this.posts); 
-        // check session for current post 
+        // check session for current posts 
         let storagePosts = window.sessionStorage.getItem("page-" + pageNumber);
         if (storagePosts != null) {
             this.posts = JSON.parse(storagePosts);
         } else { // get posts through api if not in session 
             // prevent page jumping after loading 
-            $(".posts").hide().height("600px");
+            $(".posts").hide();
             setTimeout(function () {
                 $(".posts").show();
-            }, 450);
+            }, 500);
             this.postService.getAllPosts(pageNumber)
                 .then(posts => this.posts = posts);
         }
     } 
+
+    public updatePaginationSyles(pageNumber: number): void {
+        $("[class^='page-']").parent().removeClass("active");
+        $(".page-" + pageNumber).parent().addClass("active");
+    }
 
     private _setSessionStorage(data: any, key?:string): void {
         if (key == null) {
